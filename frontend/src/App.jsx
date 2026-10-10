@@ -9,6 +9,7 @@ import AdminDashboard from './pages/AdminDashboard.jsx'
 import Users from './pages/Users.jsx'
 import CreateUser from './pages/CreateUser.jsx'
 import UpdateUser from './pages/UpdateUser.jsx'
+import ApproveUsers from './pages/ApproveUsers.jsx'
 import ProtectedRoute from './auth/ProtectedRoute.jsx'
 
 function App() {
@@ -44,6 +45,7 @@ function App() {
           <Route element={<ProtectedRoute role="admin" />}>
             <Route path="/admin" element={<AdminDashboard />} />
             <Route path="/admin/users" element={<Users />} />
+            <Route path="/admin/approve-users" element={<ApproveUsers />} />
             <Route path="/admin/createUser" element={<CreateUser />} />
             <Route path="/admin/updateUser/:id" element={<UpdateUser />} />
           </Route>
