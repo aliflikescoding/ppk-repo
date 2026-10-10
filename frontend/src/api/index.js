@@ -77,3 +77,44 @@ export const deleteUser = async (id) => {
     throw error;
   }
 };
+
+export const readFacilities = async (page = 1, limit = 20) => {
+  const response = await api.get('/facilities', { params: { page, limit } });
+  return response.data;
+};
+
+export const readFacilityById = async (id) => {
+  const response = await api.get(`/facilities/${id}`);
+  return response.data.facility;
+};
+
+const facilityRequestConfig = (data) => ({
+  ...userRequestConfig(),
+  headers: {
+    ...userRequestConfig().headers,
+    ...(data instanceof FormData ? { 'Content-Type': undefined } : {}),
+  },
+});
+
+export const createFacility = async (data) => {
+  const response = await api.post('/facilities', data, facilityRequestConfig(data));
+  return response.data.facility;
+};
+
+export const updateFacility = async (id, data) => {
+  const response = await api.patch(`/facilities/${id}`, data, facilityRequestConfig(data));
+  return response.data.facility;
+};
+
+export const deleteFacility = async (id) => {
+  await api.delete(`/facilities/${id}`, userRequestConfig());
+};
+
+export const facilityImageUrl = (url) => {
+  if (!url) return '';
+  try {
+    const base = new URL(api.defaults.baseURL, window.location.origin);
+    const image = new URL(url, base);
+    return ['http:', 'https:'].includes(image.protocol) ? image.href : '';
+  } catch { return ''; }
+};

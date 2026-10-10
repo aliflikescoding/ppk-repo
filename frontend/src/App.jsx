@@ -3,6 +3,8 @@ import Header from './components/Header.jsx'
 import Footer from './components/Footer.jsx'
 import Home from './pages/Home.jsx'
 import Facilities from './pages/Facilities.jsx'
+import CreateFacility from './pages/CreateFacility.jsx'
+import UpdateFacility from './pages/UpdateFacility.jsx'
 import Login from './pages/Login.jsx'
 import Register from './pages/Register.jsx'
 import AdminDashboard from './pages/AdminDashboard.jsx'
@@ -44,6 +46,9 @@ function App() {
           </Route>
           <Route element={<ProtectedRoute role="admin" />}>
             <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/admin/facilities" element={<Facilities manage />} />
+            <Route path="/admin/createFacility" element={<CreateFacility />} />
+            <Route path="/admin/updateFacility/:id" element={<UpdateFacility />} />
             <Route path="/admin/users" element={<Users />} />
             <Route path="/admin/approve-users" element={<ApproveUsers />} />
             <Route path="/admin/createUser" element={<CreateUser />} />

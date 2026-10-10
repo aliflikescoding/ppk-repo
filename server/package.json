@@ -15,6 +15,7 @@
     "prisma:reset": "prisma migrate reset",
     "script:generateAdmin": "node --env-file=.env src/scripts/createAdmin.js",
     "script:seed": "node --env-file=.env src/scripts/seed.js",
+    "script:seedFacilities": "node --env-file=.env src/scripts/seedFacilities.js",
     "postinstall": "prisma skills sync || exit 0"
   },
   "keywords": [],

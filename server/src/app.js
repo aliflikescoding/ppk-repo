@@ -2,6 +2,7 @@ const express = require("express");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
 const userRoutes = require("./routes/user.routes");
+const facilityRoutes = require("./routes/facility.routes");
 
 const app = express();
 const port = process.env.PORT || "5000";
@@ -13,13 +14,16 @@ app.use(
   }),
 );
 
-app.use("/uploads", express.static("public/uploads"));
+app.use("/uploads", express.static(require("./utils/facility-images").uploadRoot, {
+  setHeaders: (res) => res.setHeader("X-Content-Type-Options", "nosniff"),
+}));
 
 app.use(express.json({ limit: "10mb" }));
 app.use(cookieParser());
 
 const apiRouter = express.Router();
 apiRouter.use("/users", userRoutes);
+apiRouter.use("/facilities", facilityRoutes);
 
 app.use("/api", apiRouter);
 
