@@ -44,14 +44,14 @@ function token(role, isActive = true) {
   accounts.set(id, { id, role, isActive });
   return jwt.sign({}, process.env.JWT_SECRET, { subject: id });
 }
-test('facility public reads, admin-only writes, validation and CRUD', async () => {
+test('facility public reads, staff updates, admin create/delete, validation and CRUD', async () => {
   const admin = token('admin');
   const body = { name: 'Meeting room', capacity: 10, type_id: 1, location_id: 1, image_urls: ['https://example.com/room.jpg'] };
   assert.equal((await request()).status, 200);
   for (const [path, method] of [['', 'POST'], ['/1', 'PATCH'], ['/1', 'PUT'], ['/1', 'DELETE']]) {
     assert.equal((await request(path, method, body)).status, 401);
-    for (const role of ['user', 'employee']) assert.equal((await request(path, method, body, token(role))).status, 403);
-    assert.equal((await request(path, method, body, token('admin', false))).status, 403);
+    for (const role of (['PATCH', 'PUT'].includes(method) ? ['user'] : ['user', 'employee'])) assert.equal((await request(path, method, body, token(role))).status, 403);
+    for (const role of ['admin', 'employee']) assert.equal((await request(path, method, body, token(role, false))).status, 403);
   }
   for (const invalid of [{ ...body, capacity: 0 }, { ...body, is_active: 'true' }, { ...body, type_id: 9 }, { ...body, image_urls: ['javascript:alert(1)'] }, { ...body, id: 9 }]) {
     assert.equal((await request('', 'POST', invalid, admin)).status, 400);
@@ -59,6 +59,12 @@ test('facility public reads, admin-only writes, validation and CRUD', async () =
   const created = await request('', 'POST', body, admin);
   assert.equal(created.status, 201);
   assert.equal(created.body.facility.is_active, false);
+  const employee = token('employee');
+  assert.equal((await request('/1', 'PATCH', { name: 'Employee updated' }, employee)).status, 200);
+  assert.equal((await request('/1', 'PUT', { capacity: 25, type_id: 1, location_id: 1, is_active: true }, employee)).status, 200);
+  assert.equal(saved.capacity, 25);
+  assert.equal(saved.is_active, true);
+  assert.equal((await request('/1', 'PATCH', { capacity: -1 }, employee)).status, 400);
   assert.equal((await request('/1')).status, 200);
   assert.equal((await request('/999')).status, 404);
   assert.equal((await request('/bad')).status, 400);
@@ -124,7 +130,7 @@ test('multipart uploads, public image access, replacement and deletion cleanup',
   const publicImage = await fetch(`http://127.0.0.1:${server.address().port}${first}`);
   assert.equal(publicImage.status, 200);
   assert.deepEqual(Buffer.from(await publicImage.arrayBuffer()), png);
-  const replaced = await multipart('PATCH', {}, [file]);
+  const replaced = await multipart('PATCH', {}, [file], token('employee'));
   assert.equal(replaced.status, 200);
   const second = saved.images.create[0].image_url;
   assert.notEqual(first, second);

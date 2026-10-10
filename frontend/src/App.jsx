@@ -9,6 +9,9 @@ import UpdateFacility from './pages/UpdateFacility.jsx'
 import Login from './pages/Login.jsx'
 import Register from './pages/Register.jsx'
 import AdminDashboard from './pages/AdminDashboard.jsx'
+import EmployeeDashboard from './pages/EmployeeDashboard.jsx'
+import EmployeeFacilities from './pages/EmployeeFacilities.jsx'
+import UserDashboard from './pages/UserDashboard.jsx'
 import Users from './pages/Users.jsx'
 import CreateUser from './pages/CreateUser.jsx'
 import UpdateUser from './pages/UpdateUser.jsx'
@@ -37,7 +40,7 @@ function App() {
           <Route path="/login" element={<Login key="user" role="user" />} />
           <Route path="/register" element={<Register />} />
           <Route
-            path="/staff/login"
+            path="/employee/login"
             element={<Login key="employee" role="employee" />}
           />
           <Route
@@ -45,10 +48,11 @@ function App() {
             element={<Login key="admin" role="admin" />}
           />
           <Route element={<ProtectedRoute role="user" />}>
-            
+            <Route path="/user" element={<UserDashboard />} />
           </Route>
           <Route element={<ProtectedRoute role="employee" />}>
-            
+            <Route path="/employee" element={<EmployeeDashboard />} />
+            <Route path="/employee/facilities" element={<EmployeeFacilities />} />
           </Route>
           <Route element={<ProtectedRoute role="admin" />}>
             <Route path="/admin" element={<AdminDashboard />} />

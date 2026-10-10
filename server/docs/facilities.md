@@ -7,10 +7,10 @@ Base URL: `/api/facilities`.
 | GET | `/` | Public | Paginated facilities |
 | GET | `/:id` | Public | One facility, or 404 |
 | POST | `/` | Active admin | Create facility (201) |
-| PATCH / PUT | `/:id` | Active admin | Update supplied fields (200) |
+| PATCH / PUT | `/:id` | Active admin or employee | Update supplied fields (200) |
 | DELETE | `/:id` | Active admin | Delete facility and images (204) |
 
-Writes require `Authorization: Bearer <token>` obtained from login. Missing or invalid tokens return 401; non-admin or inactive accounts return 403. Both PATCH and PUT accept partial updates.
+Writes require `Authorization: Bearer <token>` obtained from login. Missing or invalid tokens return 401. Creation/deletion require an admin; updates allow admins and employees, including image uploads. Disallowed roles or inactive accounts return 403. Both PATCH and PUT accept partial updates.
 
 ## Create or update
 

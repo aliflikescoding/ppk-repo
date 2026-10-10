@@ -73,6 +73,7 @@ model Report {
   description  String         @db.VarChar(500)
   photo_report String
   reaseon      String?        @db.VarChar(500)
+  resolved     String?        @db.VarChar(500)
   user         User           @relation(fields: [user_id], references: [id])
   facility     Facility       @relation(fields: [facility_id], references: [id])
   category     ReportCategory @relation(fields: [category_id], references: [id])

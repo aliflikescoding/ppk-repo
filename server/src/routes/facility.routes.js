@@ -11,10 +11,14 @@ router.param("id", (req, res, next, id) => {
 });
 router.get("/", controller.getFacilities);
 router.get("/:id", controller.getFacility);
-router.use(authenticate, requireAdmin);
-router.post("/", upload, controller.createFacility);
-router.patch("/:id", upload, controller.updateFacility);
-router.put("/:id", upload, controller.updateFacility);
-router.delete("/:id", controller.deleteFacility);
+const requireStaff = (req, res, next) => {
+  if (!["admin", "employee"].includes(req.user.role)) return res.status(403).json({ message: "Admin or employee access is required." });
+  return next();
+};
+router.use(authenticate);
+router.post("/", requireAdmin, upload, controller.createFacility);
+router.patch("/:id", requireStaff, upload, controller.updateFacility);
+router.put("/:id", requireStaff, upload, controller.updateFacility);
+router.delete("/:id", requireAdmin, controller.deleteFacility);
 
 module.exports = router;
