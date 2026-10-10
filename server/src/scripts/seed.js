@@ -4,6 +4,7 @@ const prisma = require("../config/prisma");
 const { validateUser } = require("../utils/user");
 const { seedFacilities } = require("./seedFacilities");
 const { seedReports } = require("./seedReports");
+const { seedReservations } = require("./seedReservations");
 
 async function seedUsers() {
   if (await prisma.user.count()) {
@@ -34,6 +35,7 @@ async function main() {
   await seedUsers();
   await seedFacilities(prisma);
   await seedReports(prisma);
+  await seedReservations(prisma);
 }
 
 main()

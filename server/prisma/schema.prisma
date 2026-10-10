@@ -99,12 +99,15 @@ model Reservation {
   start_time  DateTime  @db.Timestamp(6)
   // End time must be between 07:00 and 20:00; enforce in application validation or SQL constraints.
   end_time    DateTime  @db.Timestamp(6)
-  // New reservations are not accepted by default.
-  isAccepted  Boolean   @default(false)
+  // 'done' reservations occupy the facility's time slot.
+  status      String    @default("new") @db.VarChar(9)
+  reason      String?   @db.VarChar(500)
   // Defaults to the current timestamp when omitted.
   created_at  DateTime? @default(now()) @db.Timestamp(6)
   user        User      @relation(fields: [user_id], references: [id])
   facility    Facility  @relation(fields: [facility_id], references: [id])
 
+  @@index([user_id])
+  @@index([facility_id, status, start_time, end_time])
   @@map("reservations")
 }

@@ -12,6 +12,7 @@ export default function AdminDashboard() {
         <Link to="/admin/facility-types" className="btn">Manage facility types</Link>
         <Link to="/admin/facility-locations" className="btn">Manage facility locations</Link>
         <Link to="/admin/facilities" className="btn btn-primary">View facilities</Link>
+        <Link to="/admin/reservations" className="btn btn-primary">View reservations</Link>
         <Link to="/admin/reports" className="btn btn-primary">View reports</Link>
         <Link to="/admin/report-categories" className="btn">Manage report categories</Link>
         <Link to="/admin/users" className="btn btn-primary">View users</Link>

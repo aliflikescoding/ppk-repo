@@ -9,6 +9,7 @@ test("user seeder skips populated tables and hashes passwords for empty tables",
   const users = [{ ...existing }];
   let facilitySeedRuns = 0;
   let reportSeedRuns = 0;
+  let reservationSeedRuns = 0;
   async function run(env = {}) {
     const scriptProcess = { env, exitCode: 0 };
     let finish;
@@ -33,6 +34,7 @@ test("user seeder skips populated tables and hashes passwords for empty tables",
       require: (name) => name === "../config/prisma" ? prisma
         : name === "./seedFacilities" ? { seedFacilities: async (client) => { assert.equal(client, prisma); facilitySeedRuns++; } }
         : name === "./seedReports" ? { seedReports: async (client) => { assert.equal(client, prisma); assert.equal(facilitySeedRuns, reportSeedRuns + 1); reportSeedRuns++; } }
+        : name === "./seedReservations" ? { seedReservations: async (client) => { assert.equal(client, prisma); assert.equal(reportSeedRuns, reservationSeedRuns + 1); reservationSeedRuns++; } }
         : name === "../utils/user" ? require("../src/utils/user") : require(name),
       process: scriptProcess,
       console: { log() {}, error() {} },
@@ -55,6 +57,7 @@ test("user seeder skips populated tables and hashes passwords for empty tables",
   assert.equal(await run({ SEED_PASSWORD: "CustomPassword123" }), 0);
   assert.equal(facilitySeedRuns, 4);
   assert.equal(reportSeedRuns, 4);
+  assert.equal(reservationSeedRuns, 4);
   assert.equal(users.length, 4);
   assert.equal(await bcrypt.compare("CustomPassword123", users[0].password), true);
 });

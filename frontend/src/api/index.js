@@ -221,3 +221,38 @@ export const saveReportCategory = async (name, id) => {
 export const deleteReportCategory = async (id) => {
   await api.delete(`/report-categories/${id}`, userRequestConfig());
 };
+
+export const readReservations = async (params = {}) => {
+  const response = await api.get('/reservations', { ...userRequestConfig(), params });
+  return response.data;
+};
+
+export const readReservationById = async (id) => {
+  const response = await api.get(`/reservations/${id}`, userRequestConfig());
+  return response.data.reservation;
+};
+
+export const createReservation = async (data) => {
+  const response = await api.post('/reservations', data, userRequestConfig());
+  return response.data.reservation;
+};
+
+export const updateReservation = async (id, data) => {
+  const response = await api.patch(`/reservations/${id}`, data, userRequestConfig());
+  return response.data.reservation;
+};
+
+export const deleteReservation = async (id) => {
+  await api.delete(`/reservations/${id}`, userRequestConfig());
+};
+
+export const readAllUsers = async () => {
+  const users = [];
+  let page = 1;
+  let batch;
+  do {
+    batch = await readUsers(page++, 100);
+    users.push(...batch);
+  } while (batch.length === 100);
+  return users;
+};

@@ -25,6 +25,11 @@ import CreateReport from './pages/CreateReport.jsx'
 import UpdateReport from './pages/UpdateReport.jsx'
 import ReportDetail from './pages/ReportDetail.jsx'
 
+import Reservations from './pages/Reservations.jsx'
+import CreateReservation from './pages/CreateReservation.jsx'
+import UpdateReservation from './pages/UpdateReservation.jsx'
+import ReservationDetail from './pages/ReservationDetail.jsx'
+
 function App() {
   return (
     <div className="flex min-h-dvh flex-col bg-base-200 text-base-content">
@@ -60,6 +65,10 @@ function App() {
           </Route>
           <Route element={<ProtectedRoute role="admin" />}>
             <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/admin/reservations" element={<Reservations />} />
+            <Route path="/admin/createReservation" element={<CreateReservation />} />
+            <Route path="/admin/updateReservation/:id" element={<UpdateReservation />} />
+            <Route path="/admin/reservations/:id" element={<ReservationDetail />} />
             <Route path="/admin/reports" element={<Reports />} />
             <Route path="/admin/createReport" element={<CreateReport />} />
             <Route path="/admin/updateReport/:id" element={<UpdateReport />} />

@@ -1,0 +1,22 @@
+const router = require("express").Router();
+const controller = require("../controllers/reservation.controller");
+const { authenticate, requireAdmin } = require("../middleware/auth.middleware");
+const { parseId } = require("../utils/facility");
+const { uuid, isStaff } = require("../utils/report");
+router.get("/calendar", controller.calendar);
+router.use(authenticate);
+router.param("id", (req, res, next, id) => {
+  req.reservationId = parseId(id);
+  return req.reservationId ? next() : res.status(400).json({ message: "Reservation id must be a positive integer." });
+});
+router.param("userId", (req, res, next, id) => uuid(id) ? next() : res.status(400).json({ message: "User id must be a UUID." }));
+const requireStaff = (req, res, next) => isStaff(req.user) ? next() : res.status(403).json({ message: "Admin or employee access is required." });
+router.get("/me", controller.mine);
+router.get("/user/:userId", controller.byUser);
+router.get("/", controller.list);
+router.get("/:id", controller.get);
+router.post("/", (req, res, next) => req.user.role === "employee" ? res.status(403).json({ message: "Only users and admins can create reservations." }) : next(), controller.create);
+router.patch("/:id", requireStaff, controller.update);
+router.put("/:id", requireStaff, controller.update);
+router.delete("/:id", requireAdmin, controller.delete);
+module.exports = router;
