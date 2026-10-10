@@ -20,14 +20,14 @@ model User {
 }
 
 model Facility {
-  id           Int             @id @default(autoincrement())
+  id           Int              @id @default(autoincrement())
   capacity     Int
-  name         String          @db.VarChar(50)
+  name         String           @db.VarChar(50)
   // New facilities are inactive by default.
-  is_active    Boolean         @default(false)
+  is_active    Boolean          @default(false)
   type_id      Int
   location_id  Int
-  type         FacilityType    @relation(fields: [type_id], references: [id])
+  type         FacilityType     @relation(fields: [type_id], references: [id])
   location     FacilityLocation @relation(fields: [location_id], references: [id])
   images       FacilityImage[]
   reports      Report[]

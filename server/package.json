@@ -33,6 +33,6 @@
   },
   "devDependencies": {
     "@faker-js/faker": "latest",
-    "prisma": "latest"
+    "prisma": "7.10.0"
   }
 }
