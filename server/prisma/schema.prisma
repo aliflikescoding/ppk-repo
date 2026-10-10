@@ -10,7 +10,8 @@ model User {
   id           String        @id @db.Uuid
   email        String        @unique @db.VarChar(50)
   user_name    String        @unique @db.VarChar(50)
-  password     String        @db.VarChar(16)
+  // Stores a bcrypt hash, never the plaintext password.
+  password     String        @db.VarChar(60)
   // Allowed values: 'user', 'admin', 'employee'. Default: 'user'.
   role         String        @default("user") @db.VarChar(8)
   reports      Report[]
