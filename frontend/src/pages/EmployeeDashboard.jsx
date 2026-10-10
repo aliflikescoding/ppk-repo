@@ -26,6 +26,7 @@ export default function EmployeeDashboard() {
     </section>
     <div className="mt-6 flex flex-wrap gap-3">
       <Link to="/employee/facilities" className="btn btn-primary">Manage facility availability</Link>
+      <Link to="/employee/reports" className="btn btn-primary">Resolve reports</Link>
     </div>
     </div>
   )
