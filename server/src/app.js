@@ -24,6 +24,8 @@ app.use(cookieParser());
 const apiRouter = express.Router();
 apiRouter.use("/users", userRoutes);
 apiRouter.use("/facilities", facilityRoutes);
+apiRouter.use("/facility-types", require("./routes/facility-type.routes"));
+apiRouter.use("/facility-locations", require("./routes/facility-location.routes"));
 
 app.use("/api", apiRouter);
 

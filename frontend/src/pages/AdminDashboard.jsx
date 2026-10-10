@@ -9,6 +9,8 @@ export default function AdminDashboard() {
       <p className="mt-3">Welcome, {user.user_name}.</p>
       <p className="mt-2">Signed in as {user.email}.</p>
       <div className="mt-6 flex flex-wrap gap-3">
+        <Link to="/admin/facility-types" className="btn">Manage facility types</Link>
+        <Link to="/admin/facility-locations" className="btn">Manage facility locations</Link>
         <Link to="/admin/facilities" className="btn btn-primary">View facilities</Link>
         <Link to="/admin/users" className="btn btn-primary">View users</Link>
         <Link to="/admin/approve-users" className="btn btn-success">Approve users</Link>

@@ -118,3 +118,31 @@ export const facilityImageUrl = (url) => {
     return ['http:', 'https:'].includes(image.protocol) ? image.href : '';
   } catch { return ''; }
 };
+
+export const readFacilityReferences = async (kind, page = 1, limit = 20) => {
+  const response = await api.get(`/facility-${kind}`, { params: { page, limit, sort_by: 'name' } });
+  return response.data;
+};
+
+export const readAllFacilityReferences = async (kind) => {
+  const records = [];
+  let page = 1;
+  let data;
+  do {
+    data = await readFacilityReferences(kind, page++, 100);
+    records.push(...data[kind]);
+  } while (data.has_next);
+  return records;
+};
+
+export const saveFacilityReference = async (kind, name, id) => {
+  const path = `/facility-${kind}${id ? `/${id}` : ''}`;
+  const response = id
+    ? await api.patch(path, { name }, userRequestConfig())
+    : await api.post(path, { name }, userRequestConfig());
+  return response.data;
+};
+
+export const deleteFacilityReference = async (kind, id) => {
+  await api.delete(`/facility-${kind}/${id}`, userRequestConfig());
+};

@@ -83,7 +83,9 @@ export default function Facilities({ manage = false }) {
           <h1 className="text-3xl font-bold">Facilities</h1>
           <p className="mt-2">Explore facilities, capacity, and locations.</p>
         </div>
-        {manage && <div>
+        {manage && <div className="flex flex-wrap gap-2">
+          <Link to="/admin/facility-types" className="btn">Manage types</Link>
+          <Link to="/admin/facility-locations" className="btn">Manage locations</Link>
           <Link to="/admin/createFacility" className="btn">
             Create Facility
           </Link>

@@ -94,3 +94,15 @@ Run `npm run script:seed` (or `npm run prisma:seed`) to seed users and facilitie
 The facility seed creates an active meeting room (capacity 12) and computer laboratory (capacity 20), with generated photos. It reuses matching type/location records or creates missing ones. A database transaction locks the facilities table while checking and inserting, so overlapping facility seed runs cannot duplicate the examples.
 
 Source images live in `prisma/seed-assets`. Seeding copies them into `public/uploads/facilities` with unique filenames and stores publicly accessible `/uploads/facilities/...` URLs. Source images remain available for reseeding after facilities are deleted. Failed seeds roll back database changes and clean up copied files.
+
+## Separate facility type and location CRUD
+
+Facility types use `/api/facility-types`; locations use `/api/facility-locations`.
+
+Each endpoint supports public `GET /` and `GET /:id`, plus active-admin-only `POST /`, `PATCH /:id`, `PUT /:id`, and `DELETE /:id`. Create and update bodies accept only `{ "name": "Meeting Room" }` or `{ "name": "Main Building" }`. Names are trimmed and require 1–50 characters. Types and locations are independent resources; facility writes accept their existing IDs rather than creating them.
+
+Lists support `page`, `limit`, `search` (case-insensitive name search), `sort_by` (`id` or `name`), and `sort_order` (`asc` or `desc`), using the same defaults and pagination metadata as facilities. Responses use `types` / `type` and `locations` / `location` respectively.
+
+Create returns 201, update/read 200, and delete 204. Invalid input returns 400; absent records return 404. Deleting a type or location referenced by a facility returns 409. Change the facility's reference or delete the facility first.
+
+Frontend flow: fetch types and locations for dropdowns, let admins manage them through their respective endpoints, then send selected `type_id` and `location_id` when saving a facility. No database migration is required.
