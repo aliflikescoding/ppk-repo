@@ -10,6 +10,16 @@ const api = axios.create({
 
 export default api;
 
+export const registerUser = async (data) => {
+  try {
+    const response = await api.post("/users/register", data);
+    return response.data.user;
+  } catch (error) {
+    console.error("Error registering user:", error);
+    throw error;
+  }
+};
+
 const userRequestConfig = () => ({
   headers: {
     Authorization: `Bearer ${sessionStorage.getItem("revesrv-token")}`,

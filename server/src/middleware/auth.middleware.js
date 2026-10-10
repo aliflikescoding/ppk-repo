@@ -16,6 +16,7 @@ exports.authenticate = async (req, res, next) => {
   try {
     req.user = await prisma.user.findUnique({ where: { id: payload.sub }, select: publicUser });
     if (!req.user) return res.status(401).json({ message: "Invalid or expired token." });
+    if (!req.user.isActive) return res.status(403).json({ message: "Your account is inactive. Admin approval is required." });
     return next();
   } catch (error) {
     return handleUserError(error, res);

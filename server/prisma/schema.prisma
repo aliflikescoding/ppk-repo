@@ -14,6 +14,7 @@ model User {
   password     String        @db.VarChar(60)
   // Allowed values: 'user', 'admin', 'employee'. Default: 'user'.
   role         String        @default("user") @db.VarChar(8)
+  isActive     Boolean       @default(false)
   reports      Report[]
   reservations Reservation[]
 

@@ -10,7 +10,7 @@ async function create(req, res, allowRole) {
   try {
     const { email, user_name, password, role } = req.body;
     const user = await prisma.user.create({
-      data: { id: randomUUID(), email, user_name, password: await bcrypt.hash(password, 10), role: allowRole ? (role || "user") : "user" },
+      data: { id: randomUUID(), email, user_name, password: await bcrypt.hash(password, 10), role: allowRole ? (role || "user") : "user", isActive: allowRole },
       select: publicUser,
     });
     return res.status(201).json({ user });
@@ -33,6 +33,7 @@ exports.login = async (req, res) => {
     if (!user || !(await bcrypt.compare(password, user.password))) {
       return res.status(401).json({ message: "Invalid email or password." });
     }
+    if (!user.isActive) return res.status(403).json({ message: "Your account is inactive. Admin approval is required." });
     const token = jwt.sign({}, process.env.JWT_SECRET, { subject: user.id, expiresIn: "1h", algorithm: "HS256" });
     const { password: hash, ...profile } = user;
     return res.json({ token, user: profile });

@@ -13,7 +13,7 @@ async function main() {
   if (message) throw new Error(`Set ADMIN_EMAIL, ADMIN_USER_NAME, and ADMIN_PASSWORD in .env: ${message}`);
 
   const existing = await prisma.user.findUnique({ where: { email: data.email }, select: publicUser });
-  if (existing?.role === "admin") {
+  if (existing?.role === "admin" && existing.isActive) {
     console.log("Admin already exists; no changes made:", existing);
     return;
   }
@@ -22,11 +22,11 @@ async function main() {
   const user = existing
     ? await prisma.user.update({
         where: { id: existing.id },
-        data: { role: "admin", password },
+        data: { role: "admin", password, isActive: true },
         select: publicUser,
       })
     : await prisma.user.create({
-        data: { ...data, id: randomUUID(), password, role: "admin" },
+        data: { ...data, id: randomUUID(), password, role: "admin", isActive: true },
         select: publicUser,
       });
   console.log(existing ? "User promoted to admin:" : "Admin created:", user);

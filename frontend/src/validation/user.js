@@ -14,3 +14,5 @@ export const updateUserSchema = createUserSchema.extend({
     .transform((value) => value === '' ? undefined : value),
   role: createUserSchema.shape.role.optional(),
 })
+
+export const registerSchema = createUserSchema.omit({ role: true })

@@ -54,6 +54,9 @@ export default function Login({ role }) {
             <button type="submit" className="btn btn-primary w-full">{pending ? 'Signing in…' : 'Sign in'}</button>
           </fieldset>
         </form>
+        {role === 'user' && (
+          <p className="mt-4 text-sm">Don’t have an account? <Link to="/register" className="link link-primary">Register</Link></p>
+        )}
         <nav aria-label="Other login options" className="mt-4 flex flex-wrap gap-4 text-sm">
           {Object.entries(roles).filter(([key]) => key !== role).map(([key, value]) => (
             <Link key={key} to={value.login} className="link link-primary">{value.label} login</Link>

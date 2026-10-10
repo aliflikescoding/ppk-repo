@@ -125,6 +125,7 @@ export default function Users() {
                   <th scope="col">Name</th>
                   <th scope="col">Email</th>
                   <th scope="col">Role</th>
+                  <th scope="col">Status</th>
                   <th scope="col" className="text-right">Actions</th>
                 </tr>
               </thead>
@@ -136,6 +137,11 @@ export default function Users() {
                     <td>
                       <span className="badge badge-outline">
                         {roles[user.role]?.label || user.role}
+                      </span>
+                    </td>
+                    <td>
+                      <span className={`badge ${user.isActive === true ? 'badge-success' : user.isActive === false ? 'badge-error' : 'badge-outline'}`}>
+                        {user.isActive === true ? 'Active' : user.isActive === false ? 'Inactive' : 'Unknown'}
                       </span>
                     </td>
                     <td>

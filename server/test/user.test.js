@@ -62,6 +62,16 @@ test("user registration, login, permissions, and CRUD", async () => {
   assert.equal(await bcrypt.compare(credentials.password, saved.password), true);
   assert.equal((await request("/register", "POST", credentials)).status, 409);
   assert.equal((await request("/login", "POST", { ...credentials, password: "wrong" })).status, 401);
+  assert.equal(registered.body.user.isActive, false);
+  assert.equal((await request("/register", "POST", { ...credentials, email: "bypass@example.com", user_name: "bypass", isActive: true })).status, 400);
+  assert.equal((await request("/login", "POST", credentials)).status, 403);
+  const approvalAdminId = randomUUID();
+  users.set(approvalAdminId, { id: approvalAdminId, email: "approval@example.com", user_name: "approval-admin", role: "admin", password: saved.password, isActive: true });
+  const approvalToken = jwt.sign({}, process.env.JWT_SECRET, { subject: approvalAdminId, expiresIn: "1h" });
+  assert.equal((await request(`/${saved.id}`, "PATCH", { isActive: "true" }, approvalToken)).status, 400);
+  const approved = await request(`/${saved.id}`, "PATCH", { isActive: true }, approvalToken);
+  assert.equal(approved.status, 200);
+  assert.equal(approved.body.user.isActive, true);
   const login = await request("/login", "POST", credentials);
   assert.equal(login.status, 200);
   assert.equal(login.body.user.password, undefined);
@@ -73,10 +83,11 @@ test("user registration, login, permissions, and CRUD", async () => {
   assert.equal((await request("/me", "GET", undefined, expired)).status, 401);
 
   const adminId = randomUUID();
-  users.set(adminId, { id: adminId, email: "admin@example.com", user_name: "admin", role: "admin", password: saved.password });
+  users.set(adminId, { id: adminId, email: "admin@example.com", user_name: "admin", role: "admin", password: saved.password, isActive: true });
   const adminToken = jwt.sign({}, process.env.JWT_SECRET, { subject: adminId, expiresIn: "1h" });
   const employee = await request("/", "POST", { email: "employee@example.com", user_name: "employee", password: "Password123", role: "employee" }, adminToken);
   assert.equal(employee.status, 201);
+  assert.equal(employee.body.user.isActive, true);
   const id = employee.body.user.id;
   const list = await request("/", "GET", undefined, adminToken);
   assert.equal(list.status, 200);
@@ -88,6 +99,9 @@ test("user registration, login, permissions, and CRUD", async () => {
   assert.equal(await bcrypt.compare("NewPassword123", users.get(id).password), true);
   assert.equal((await request(`/${id}`, "DELETE", undefined, adminToken)).status, 204);
   assert.equal((await request(`/${id}`, "GET", undefined, adminToken)).status, 404);
+  assert.equal((await request(`/${saved.id}`, "PATCH", { isActive: false }, adminToken)).status, 200);
+  assert.equal((await request("/login", "POST", credentials)).status, 403);
+  assert.equal((await request("/me", "GET", undefined, token)).status, 403);
   users.delete(saved.id);
   assert.equal((await request("/me", "GET", undefined, token)).status, 401);
 });
@@ -113,6 +127,7 @@ test("admin script creates, promotes, and leaves existing admins unchanged", asy
   assert.equal(await runAdmin(env), 0);
   const created = await prisma.user.findUnique({ where: { email: env.ADMIN_EMAIL } });
   assert.equal(created.role, "admin");
+  assert.equal(created.isActive, true);
   assert.equal(await bcrypt.compare(env.ADMIN_PASSWORD, created.password), true);
   assert.equal(await runAdmin({ ...env, ADMIN_PASSWORD: "DifferentPassword123" }), 0);
   assert.equal(users.get(created.id).password, created.password);

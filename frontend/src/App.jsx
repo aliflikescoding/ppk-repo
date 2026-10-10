@@ -4,6 +4,7 @@ import Footer from './components/Footer.jsx'
 import Home from './pages/Home.jsx'
 import Facilities from './pages/Facilities.jsx'
 import Login from './pages/Login.jsx'
+import Register from './pages/Register.jsx'
 import AdminDashboard from './pages/AdminDashboard.jsx'
 import Users from './pages/Users.jsx'
 import CreateUser from './pages/CreateUser.jsx'
@@ -25,6 +26,7 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/facilities" element={<Facilities />} />
           <Route path="/login" element={<Login key="user" role="user" />} />
+          <Route path="/register" element={<Register />} />
           <Route
             path="/staff/login"
             element={<Login key="employee" role="employee" />}

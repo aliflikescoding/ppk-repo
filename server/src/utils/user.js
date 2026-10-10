@@ -1,9 +1,9 @@
-const publicUser = { id: true, email: true, user_name: true, role: true };
+const publicUser = { id: true, email: true, user_name: true, role: true, isActive: true };
 const roles = ["user", "admin", "employee"];
 
 function validateUser(data, partial = false, allowRole = false) {
   if (!data || typeof data !== "object" || Array.isArray(data)) return "A JSON object is required.";
-  const allowed = ["email", "user_name", "password", ...(allowRole ? ["role"] : [])];
+  const allowed = ["email", "user_name", "password", ...(allowRole ? ["role", ...(partial ? ["isActive"] : [])] : [])];
   if (Object.keys(data).some((key) => !allowed.includes(key))) return "Unknown or disallowed user field.";
   if (partial && Object.keys(data).length === 0) return "Provide at least one field to update.";
   for (const field of ["email", "user_name"]) {
@@ -20,6 +20,7 @@ function validateUser(data, partial = false, allowRole = false) {
     }
   }
   if (data.role !== undefined && !roles.includes(data.role)) return "Role must be user, admin, or employee.";
+  if (data.isActive !== undefined && typeof data.isActive !== "boolean") return "isActive must be a boolean.";
   return null;
 }
 
