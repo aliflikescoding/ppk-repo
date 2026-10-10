@@ -1,6 +1,16 @@
-import { definePrismaConfig } from "prisma/config";
+import { existsSync } from "node:fs";
+import { loadEnvFile } from "node:process";
+import { defineConfig, env } from "prisma/config";
 
-export default definePrismaConfig({
+if (existsSync(".env")) {
+  loadEnvFile(".env");
+}
+
+export default defineConfig({
+  schema: "prisma/schema.prisma",
+  datasource: {
+    url: env("DATABASE_URL"),
+  },
   skills: {
     agents: ["claude", "cursor", "agents", "devin"],
   },
