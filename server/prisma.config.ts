@@ -8,6 +8,9 @@ if (existsSync(".env")) {
 
 export default defineConfig({
   schema: "prisma/schema.prisma",
+  migrations: {
+    seed: "node --env-file=.env src/scripts/seed.js",
+  },
   datasource: {
     url: env("DATABASE_URL"),
   },

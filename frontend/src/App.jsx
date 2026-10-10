@@ -4,7 +4,10 @@ import Footer from './components/Footer.jsx'
 import Home from './pages/Home.jsx'
 import Facilities from './pages/Facilities.jsx'
 import Login from './pages/Login.jsx'
-import Dashboard from './pages/Dashboard.jsx'
+import AdminDashboard from './pages/AdminDashboard.jsx'
+import Users from './pages/Users.jsx'
+import CreateUser from './pages/CreateUser.jsx'
+import UpdateUser from './pages/UpdateUser.jsx'
 import ProtectedRoute from './auth/ProtectedRoute.jsx'
 
 function App() {
@@ -14,27 +17,39 @@ function App() {
         Skip to content
       </a>
       <Header />
-      <main id="main-content" className="mx-auto w-full max-w-6xl flex-1 px-4 py-12 sm:px-6">
+      <main
+        id="main-content"
+        className="mx-auto w-full max-w-6xl flex-1 px-4 py-12 sm:px-6"
+      >
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/facilities" element={<Facilities />} />
           <Route path="/login" element={<Login key="user" role="user" />} />
-          <Route path="/staff/login" element={<Login key="employee" role="employee" />} />
-          <Route path="/admin/login" element={<Login key="admin" role="admin" />} />
+          <Route
+            path="/staff/login"
+            element={<Login key="employee" role="employee" />}
+          />
+          <Route
+            path="/admin/login"
+            element={<Login key="admin" role="admin" />}
+          />
           <Route element={<ProtectedRoute role="user" />}>
-            <Route path="/user" element={<Dashboard />} />
+            
           </Route>
           <Route element={<ProtectedRoute role="employee" />}>
-            <Route path="/staff" element={<Dashboard />} />
+            
           </Route>
           <Route element={<ProtectedRoute role="admin" />}>
-            <Route path="/admin" element={<Dashboard />} />
+            <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/admin/users" element={<Users />} />
+            <Route path="/admin/createUser" element={<CreateUser />} />
+            <Route path="/admin/updateUser/:id" element={<UpdateUser />} />
           </Route>
         </Routes>
       </main>
       <Footer />
     </div>
-  )
+  );
 }
 
 export default App
