@@ -159,3 +159,62 @@ test('reservation seed skips populated tables, seeds empty tables, and rolls bac
   try { await assert.rejects(seedReservations(prisma), /requires existing users and facilities/); }
   finally { for (const [id, row] of savedUsers) users.set(id, row); }
 });
+
+test('users update only their own facility and times, with validation and availability checks', async () => {
+  const user = account('user'), other = account('user'), admin = account('admin');
+  const body = { facility_id: 1, start_time: '2026-11-05T09:00:00+07:00', end_time: '2026-11-05T10:00:00+07:00' };
+  const created = await request('', 'POST', body, user);
+  const id = created.body.reservation.id;
+  assert.equal((await request(`/${id}`, 'PATCH', { end_time: '2026-11-05T10:30:00+07:00' }, user)).status, 200);
+  const moved = await request(`/${id}`, 'PUT', { facility_id: 2 }, user);
+  assert.equal(moved.status, 200);
+  assert.equal(moved.body.reservation.facility_id, 2);
+  assert.equal(moved.body.reservation.status, 'new');
+  assert.equal(moved.body.reservation.user_id, user.id);
+  for (const method of ['PATCH', 'PUT']) assert.equal((await request(`/${id}`, method, { facility_id: 1 }, other)).status, 404);
+  for (const body of [{ status: 'done' }, { reason: 'Approve myself' }]) assert.equal((await request(`/${id}`, 'PATCH', body, user)).status, 403);
+  assert.equal((await request(`/${id}`, 'PATCH', { user_id: other.id }, user)).status, 400);
+  assert.equal((await request(`/${id}`, 'PATCH', { end_time: '2026-11-05T08:00:00+07:00' }, user)).status, 400);
+  assert.equal((await request(`/${id}`, 'PATCH', {}, user)).status, 400);
+  inactiveFacilities.add(1);
+  try { assert.equal((await request(`/${id}`, 'PATCH', { facility_id: 1 }, user)).status, 403); }
+  finally { inactiveFacilities.delete(1); }
+  const booked = await request('', 'POST', { ...body, facility_id: 2, start_time: '2026-11-05T11:00:00+07:00', end_time: '2026-11-05T12:00:00+07:00', status: 'done' }, admin);
+  assert.equal(booked.status, 201);
+  assert.equal((await request(`/${id}`, 'PATCH', { start_time: '2026-11-05T11:30:00+07:00', end_time: '2026-11-05T12:30:00+07:00' }, user)).status, 409);
+  assert.equal(reservations.get(id).start_time.getTime(), timestamp(body.start_time).getTime());
+  assert.equal((await request(`/${id}`, 'PATCH', { status: 'done' }, admin)).status, 200);
+  const unchanged = await request(`/${id}`, 'PATCH', { end_time: '2026-11-05T10:00:00+07:00' }, user);
+  assert.equal(unchanged.status, 200);
+  assert.equal(unchanged.body.reservation.status, 'done');
+  assert.equal((await request(`/${id}`, 'DELETE', undefined, user)).status, 403);
+});
+
+test('user cancellation checks ownership, status, exact cutoff and restricted payloads', async () => {
+  const user = account('user'), other = account('user');
+  const frozen = Date.parse('2026-11-10T00:00:00Z');
+  const originalNow = Date.now;
+  Date.now = () => frozen;
+  async function row(hours, status = 'new') {
+    return prisma.reservation.create({ data: { user_id: user.id, facility_id: 2, status, start_time: new Date(frozen + hours * 3600000), end_time: new Date(frozen + (hours + 1) * 3600000) } });
+  }
+  try {
+    const eligible = await row(5);
+    assert.equal((await request(`/${eligible.id}`, 'PATCH', { status: 'rejected' }, other)).status, 404);
+    assert.equal((await request(`/${eligible.id}`, 'PATCH', { status: 'rejected', start_time: '2026-11-10T09:00:00+07:00' }, user)).status, 403);
+    assert.equal((await request(`/${eligible.id}`, 'PATCH', { status: 'rejected', reason: 'Mine' }, user)).status, 403);
+    inactiveFacilities.add(2);
+    const cancelled = await request(`/${eligible.id}`, 'PATCH', { status: 'rejected' }, user);
+    assert.equal(cancelled.status, 200);
+    assert.equal(cancelled.body.reservation.status, 'rejected');
+    assert.equal(cancelled.body.reservation.reason, 'Cancelled by user.');
+    assert.equal((await request(`/${eligible.id}`, 'PATCH', { status: 'rejected' }, user)).status, 409);
+    const late = await row(5 - 1 / 3600000);
+    assert.equal((await request(`/${late.id}`, 'PATCH', { status: 'rejected' }, user)).status, 409);
+    assert.equal(reservations.get(late.id).status, 'new');
+    for (const status of ['processed', 'done', 'rejected']) {
+      const finalized = await row(6, status);
+      assert.equal((await request(`/${finalized.id}`, 'PATCH', { status: 'rejected' }, user)).status, 409);
+    }
+  } finally { Date.now = originalNow; inactiveFacilities.delete(2); }
+});

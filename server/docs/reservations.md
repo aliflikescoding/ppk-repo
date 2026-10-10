@@ -10,11 +10,11 @@ Base URL: `/api/reservations`.
 | `GET /`, `GET /:id` | Users: own reservations; employees/admins: all |
 | `GET /me` | Own reservations, for any active role |
 | `GET /user/:userId` | Users: their own UUID; employees/admins: any user UUID |
-| `PATCH /:id`, `PUT /:id` | Active employee or admin |
+| `PATCH /:id`, `PUT /:id` | Users: own booking details; employees/admins: any reservation |
 | `DELETE /:id` | Active admin only |
 | `GET /calendar` | Public, occupied time slots only |
 
-All routes except calendar require `Authorization: Bearer <token>`. Employees cannot create or delete reservations. Regular users cannot update or delete them. Other people's reservation details return 404 for regular users.
+All routes except calendar require `Authorization: Bearer <token>`. Employees cannot create or delete reservations. Regular users can update their own facility and times but cannot delete reservations or change status/reason. Other people's reservation details return 404 for regular users.
 
 ## Create
 
@@ -33,6 +33,8 @@ Supply timestamps with seconds and an explicit timezone: `Z` or an offset such a
 A `done` reservation occupies its facility's slot. On creation the system checks for overlapping done reservations and returns **409** if occupied. Adjacent bookings are allowed: 09:00–10:00 does not overlap 10:00–11:00. Pending (`new`/`processed`) or rejected requests do not occupy slots, so multiple pending requests can overlap.
 
 ## Update and delete
+
+Users can partially update `facility_id`, `start_time`, and `end_time` on their own reservations, subject to active-facility, business-hour, and conflict checks. Status/reason and ownership cannot be changed by users. Existing status is preserved when users edit booking details. Other users' reservations return 404.
 
 Staff can partially update `facility_id`, `start_time`, `end_time`, `status`, and `reason`. Ownership and creation time cannot be changed. Both PUT and PATCH accept partial updates; merged start/end values must still satisfy business hours.
 
@@ -88,3 +90,7 @@ npm run script:seed
 Restart the server afterward. The combined seed runs users, facilities, reports, then reservations. Each table is independently seeded only when empty. The reservation seed creates four non-overlapping one-hour examples tomorrow in Asia/Jakarta, one for each status, using existing users/facilities. It never changes populated reservation tables and rolls back if dependencies or inserts fail.
 
 Tests: `node --test --test-concurrency=1 test/*.test.js`. API tests use a mocked database, including serialized transaction behavior; they do not verify PostgreSQL locking against a live database.
+
+## User cancellation
+
+Users may PATCH their own reservation with exactly `{ "status": "rejected" }` when its status is `new` and the start is at least five hours away (inclusive). The server sets reason to `Cancelled by user.`. Other status/reason changes remain forbidden. Ownership, current status, and the cutoff are checked within the transaction; ineligible cancellation returns 409. Cancellation is allowed even if the facility has since become inactive.

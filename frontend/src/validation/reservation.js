@@ -54,3 +54,7 @@ export function buildUserReservationData(values) {
     end_time: toReservationTimestamp(values.end_time),
   }
 }
+
+export const cancellationCutoff = (reservation) => new Date(reservation.start_time).getTime() - 5 * 60 * 60 * 1000
+export const canCancelReservation = (reservation, now = Date.now()) => reservation?.status === 'new' && now <= cancellationCutoff(reservation)
+export const reservationStatusLabel = (reservation) => reservation.status === 'rejected' && reservation.reason === 'Cancelled by user.' ? 'Cancelled' : reservation.status

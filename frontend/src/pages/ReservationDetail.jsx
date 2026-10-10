@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { readReservationById } from '../api/index.js'
-import { formatReservationTime } from '../validation/reservation.js'
+import { formatReservationTime, reservationStatusLabel } from '../validation/reservation.js'
 
 export default function ReservationDetail({ readOnly = false }) {
   const { id } = useParams()
@@ -27,7 +27,7 @@ function Detail({ id, readOnly }) {
         <div><dt className="font-semibold">Reserved by</dt><dd>{reservation.user?.user_name || reservation.user_id}{reservation.user?.email && ` (${reservation.user.email})`}</dd></div>
         <div><dt className="font-semibold">Start (Asia/Jakarta)</dt><dd>{formatReservationTime(reservation.start_time)}</dd></div>
         <div><dt className="font-semibold">End (Asia/Jakarta)</dt><dd>{formatReservationTime(reservation.end_time)}</dd></div>
-        <div><dt className="font-semibold">Status</dt><dd className={`badge ${reservation.status === 'rejected' ? 'badge-error' : reservation.status === 'done' ? 'badge-success' : 'badge-outline'}`}>{reservation.status}</dd></div>
+        <div><dt className="font-semibold">Status</dt><dd className={`badge ${reservation.status === 'rejected' ? 'badge-error' : reservation.status === 'done' ? 'badge-success' : 'badge-outline'}`}>{reservationStatusLabel(reservation)}</dd></div>
         <div><dt className="font-semibold">Reason</dt><dd className="whitespace-pre-wrap break-words">{reservation.reason || 'No reason provided.'}</dd></div>
         <div><dt className="font-semibold">Created (Asia/Jakarta)</dt><dd>{formatReservationTime(reservation.created_at)}</dd></div>
       </dl>

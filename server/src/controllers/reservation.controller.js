@@ -32,6 +32,8 @@ exports.get = async (req, res) => {
 };
 async function save(req, res, partial) {
   try {
+    const userCancellation = partial && req.user.role === "user" && req.body?.status === "rejected" && Object.keys(req.body).length === 1;
+    if (partial && !isStaff(req.user) && !userCancellation && req.body && (Object.hasOwn(req.body, "status") || Object.hasOwn(req.body, "reason"))) throw problem(403, "Only admins and employees can update status or reason.");
     const data = reservationData(req.body, partial, req.user.role === "admin");
     if (!partial) {
       data.user_id = data.user_id ?? req.user.id;
@@ -43,11 +45,17 @@ async function save(req, res, partial) {
       await tx.$executeRawUnsafe('LOCK TABLE "reservations" IN SHARE ROW EXCLUSIVE MODE');
       const previous = partial ? await tx.reservation.findUnique({ where: { id: req.reservationId } }) : null;
       if (partial && !previous) throw problem(404, "Reservation not found.");
+      if (partial && !isStaff(req.user) && previous.user_id !== req.user.id) throw problem(404, "Reservation not found.");
+      if (userCancellation) {
+        if (previous.status !== "new") throw problem(409, "Only new reservations can be cancelled.");
+        if (previous.start_time.getTime() - Date.now() < 5 * 60 * 60 * 1000) throw problem(409, "Reservations must be cancelled at least 5 hours before the start time.");
+        return tx.reservation.update({ where: { id: req.reservationId }, data: { status: "rejected", reason: "Cancelled by user." }, include: reservationInclude });
+      }
       const candidate = { ...previous, ...data };
       validateWindow(candidate.start_time, candidate.end_time);
       const facility = await tx.facility.findUnique({ where: { id: candidate.facility_id }, select: { id: true, is_active: true } });
       if (!facility) throw problem(400, "facility_id does not exist.");
-      if (!partial && req.user.role === "user" && !facility.is_active) throw problem(403, "This facility is inactive and cannot accept reservation requests.");
+      if (req.user.role === "user" && !facility.is_active) throw problem(403, "This facility is inactive and cannot accept reservation requests.");
       if (!partial && !await tx.user.findUnique({ where: { id: data.user_id }, select: { id: true } })) throw problem(400, "user_id does not exist.");
       // All new requests check availability. Updates that occupy a slot recheck it.
       if (!partial || candidate.status === "done" || data.start_time || data.end_time || data.facility_id) await assertAvailable(tx, candidate, req.reservationId);
