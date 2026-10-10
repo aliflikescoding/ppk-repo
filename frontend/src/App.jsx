@@ -13,6 +13,8 @@ import EmployeeDashboard from './pages/EmployeeDashboard.jsx'
 import EmployeeFacilities from './pages/EmployeeFacilities.jsx'
 import EmployeeReports from './pages/EmployeeReports.jsx'
 import ResolveReport from './pages/ResolveReport.jsx'
+import EmployeeReservations from './pages/EmployeeReservations.jsx'
+import ResolveReservation from './pages/ResolveReservation.jsx'
 import UserDashboard from './pages/UserDashboard.jsx'
 import Users from './pages/Users.jsx'
 import CreateUser from './pages/CreateUser.jsx'
@@ -60,6 +62,8 @@ function App() {
           <Route element={<ProtectedRoute role="employee" />}>
             <Route path="/employee" element={<EmployeeDashboard />} />
             <Route path="/employee/facilities" element={<EmployeeFacilities />} />
+            <Route path="/employee/reservations" element={<EmployeeReservations />} />
+            <Route path="/employee/reservations/:id/resolve" element={<ResolveReservation />} />
             <Route path="/employee/reports" element={<EmployeeReports />} />
             <Route path="/employee/reports/:id/resolve" element={<ResolveReport />} />
           </Route>
