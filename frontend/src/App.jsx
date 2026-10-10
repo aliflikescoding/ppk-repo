@@ -12,6 +12,7 @@ import UpdateFacility from './pages/UpdateFacility.jsx'
 import Login from './pages/Login.jsx'
 import Register from './pages/Register.jsx'
 import AdminDashboard from './pages/AdminDashboard.jsx'
+import FacilityRecap from './pages/FacilityRecap.jsx'
 import EmployeeDashboard from './pages/EmployeeDashboard.jsx'
 import EmployeeFacilities from './pages/EmployeeFacilities.jsx'
 import EmployeeReports from './pages/EmployeeReports.jsx'
@@ -81,6 +82,7 @@ function App() {
           </Route>
           <Route element={<ProtectedRoute role="admin" />}>
             <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/admin/facility-recap" element={<FacilityRecap />} />
             <Route path="/admin/reservations" element={<Reservations />} />
             <Route path="/admin/createReservation" element={<CreateReservation />} />
             <Route path="/admin/updateReservation/:id" element={<UpdateReservation />} />

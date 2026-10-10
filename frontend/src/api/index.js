@@ -281,3 +281,22 @@ export const readFacilityCalendar = async (facilityId, from, to, signal) => {
   } while (data.has_next);
   return reservations;
 };
+
+export const readRecapData = async (from, to) => {
+  const readEveryPage = async (read, key, params) => {
+    const records = [];
+    let page = 1;
+    let data;
+    do {
+      data = await read({ ...params, page: page++, limit: 100 });
+      records.push(...data[key]);
+    } while (data.has_next);
+    return records;
+  };
+  const [facilities, reservations, reports] = await Promise.all([
+    readAllFacilities(),
+    readEveryPage(readReservations, 'reservations', { from, to, status: 'done' }),
+    readEveryPage(readReports, 'reports', {}),
+  ]);
+  return { facilities, reservations, reports };
+};
