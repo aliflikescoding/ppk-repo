@@ -16,6 +16,8 @@ import ResolveReport from './pages/ResolveReport.jsx'
 import EmployeeReservations from './pages/EmployeeReservations.jsx'
 import ResolveReservation from './pages/ResolveReservation.jsx'
 import UserDashboard from './pages/UserDashboard.jsx'
+import UserReports from './pages/UserReports.jsx'
+import UserReservations from './pages/UserReservations.jsx'
 import Users from './pages/Users.jsx'
 import CreateUser from './pages/CreateUser.jsx'
 import UpdateUser from './pages/UpdateUser.jsx'
@@ -58,6 +60,10 @@ function App() {
           />
           <Route element={<ProtectedRoute role="user" />}>
             <Route path="/user" element={<UserDashboard />} />
+            <Route path="/user/reports" element={<UserReports />} />
+            <Route path="/user/reports/:id" element={<ReportDetail readOnly />} />
+            <Route path="/user/reservations" element={<UserReservations />} />
+            <Route path="/user/reservations/:id" element={<ReservationDetail readOnly />} />
           </Route>
           <Route element={<ProtectedRoute role="employee" />}>
             <Route path="/employee" element={<EmployeeDashboard />} />

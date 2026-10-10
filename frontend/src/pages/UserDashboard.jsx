@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import { useAuth } from '../auth/auth.js'
 
 export default function UserDashboard() {
@@ -5,7 +6,8 @@ export default function UserDashboard() {
   const label = 'User'
 
   return (
-    <section className="card mx-auto max-w-2xl border border-base-300 bg-base-100 shadow-sm">
+    <div className="mx-auto max-w-4xl">
+    <section className="card border border-base-300 bg-base-100 shadow-sm">
       <div className="card-body">
         <h1 className="text-3xl font-bold">{label} dashboard</h1>
         <p className="mt-3 text-lg">Hello, {user.user_name}.</p>
@@ -22,5 +24,10 @@ export default function UserDashboard() {
         </dl>
       </div>
     </section>
+    <div className="mt-6 flex flex-wrap gap-3">
+      <Link to="/user/reports" className="btn btn-primary">Report history</Link>
+      <Link to="/user/reservations" className="btn btn-primary">Reservation history</Link>
+    </div>
+    </div>
   )
 }

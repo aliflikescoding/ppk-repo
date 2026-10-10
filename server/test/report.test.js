@@ -53,15 +53,20 @@ async function request(path, method = 'GET', body, auth) {
   });
   return { status: res.status, body: res.status === 204 ? null : await res.json() };
 }
-test('report categories are admin-only, reports enforce ownership and staff permissions', async () => {
+test('category lists are public, category writes are admin-only, reports enforce ownership and staff permissions', async () => {
   const admin = account('admin'), employee = account('employee'), user = account('user'), other = account('user');
-  for (const [path, method, body] of [['report-categories', 'GET'], ['report-categories/1', 'GET'], ['report-categories', 'POST', { name: 'Damage' }], ['report-categories/1', 'PATCH', { name: 'Damage' }], ['report-categories/1', 'DELETE']]) {
+  assert.equal((await request('report-categories')).status, 200);
+  for (const auth of [employee, user]) assert.equal((await request('report-categories', 'GET', undefined, auth)).status, 200);
+  for (const [path, method, body] of [['report-categories/1', 'GET'], ['report-categories', 'POST', { name: 'Damage' }], ['report-categories/1', 'PATCH', { name: 'Damage' }], ['report-categories/1', 'DELETE']]) {
     assert.equal((await request(path, method, body)).status, 401);
     for (const auth of [employee, user]) assert.equal((await request(path, method, body, auth)).status, 403);
   }
   const category = await request('report-categories', 'POST', { name: 'Damage' }, admin);
   assert.equal(category.status, 201);
   const categoryId = category.body.category.id;
+  const publicList = await request('report-categories?search=Damage');
+  assert.equal(publicList.status, 200);
+  assert.equal(publicList.body.categories[0].id, categoryId);
   assert.equal((await request(`report-categories/${categoryId}`, 'GET', undefined, admin)).status, 200);
   assert.equal((await request('report-categories?search=Damage', 'GET', undefined, admin)).body.total, 1);
   assert.equal((await request(`report-categories/${categoryId}`, 'PATCH', { name: 'Maintenance' }, admin)).status, 200);

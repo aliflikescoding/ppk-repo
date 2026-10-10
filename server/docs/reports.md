@@ -1,6 +1,6 @@
 # Reports API
 
-All routes require `Authorization: Bearer <token>` from an active account.
+Report routes require `Authorization: Bearer <token>` from an active account. The report-category list is public.
 
 | Operation | User | Employee | Admin |
 | --- | --- | --- | --- |
@@ -8,7 +8,8 @@ All routes require `Authorization: Bearer <token>` from an active account.
 | Read reports | Own reports | All reports | All reports |
 | Update report | No | Yes | Yes |
 | Delete report | No | No | Yes |
-| Report-category CRUD, including reads | No | No | Yes |
+| List report categories | Public | Public | Public |
+| Report-category detail/create/update/delete | No | No | Yes |
 
 ## Report routes
 
@@ -51,7 +52,7 @@ List responses contain `reports`, `page`, `limit`, `total`, `total_pages`, `has_
 
 ## Report categories
 
-Base URL: `/api/report-categories`. All operations, including reading, are admin-only.
+Base URL: `/api/report-categories`. `GET /` is public, including search and pagination. Detail reads, creation, updates, and deletion remain admin-only.
 
 Supports `GET /`, `GET /:id`, `POST /`, `PATCH /:id`, `PUT /:id`, `DELETE /:id`. Create/update accept only `{ "name": "Maintenance" }` (1–50 characters). Responses use `category` or `categories`. Lists support `page`, `limit`, `search`, `sort_by` (`id`, `name`), and `sort_order` (`asc`, `desc`), matching facility-type defaults.
 

@@ -256,3 +256,13 @@ export const readAllUsers = async () => {
   } while (batch.length === 100);
   return users;
 };
+
+export const readMyReports = async (params = {}) => {
+  const response = await api.get('/reports/me', { ...userRequestConfig(), params });
+  return response.data;
+};
+
+export const readMyReservations = async (params = {}) => {
+  const response = await api.get('/reservations/me', { ...userRequestConfig(), params });
+  return response.data;
+};
