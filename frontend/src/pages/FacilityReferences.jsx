@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { toast } from 'react-toastify'
-import { deleteFacilityReference, readFacilityReferences, saveFacilityReference } from '../api/index.js'
+import { deleteFacilityReference, readFacilityReferences, saveFacilityReference, deleteReportCategory, readReportCategories, saveReportCategory } from '../api/index.js'
 
 export default function FacilityReferences({ kind }) {
-  const label = kind === 'types' ? 'type' : 'location'
-  const title = kind === 'types' ? 'Facility types' : 'Facility locations'
+  const category = kind === 'categories'
+  const label = category ? 'category' : kind === 'types' ? 'type' : 'location'
+  const title = category ? 'Report categories' : kind === 'types' ? 'Facility types' : 'Facility locations'
   const [page, setPage] = useState(1)
   const [attempt, setAttempt] = useState(0)
   const [records, setRecords] = useState([])
@@ -23,13 +24,14 @@ export default function FacilityReferences({ kind }) {
 
   useEffect(() => {
     let active = true
-    readFacilityReferences(kind, page).then((data) => {
+    const request = (category ? readReportCategories(page) : readFacilityReferences(kind, page))
+    request.then((data) => {
       if (active) { setRecords(data[kind]); setHasNext(data.has_next) }
     }).catch((error) => {
       if (active) setLoadError(error.response?.data?.message || `Unable to load ${kind}. Please try again.`)
     }).finally(() => { if (active) setLoading(false) })
     return () => { active = false }
-  }, [kind, page, attempt])
+  }, [kind, category, page, attempt])
 
   function reload(nextPage = page) {
     setLoading(true)
@@ -46,8 +48,8 @@ export default function FacilityReferences({ kind }) {
     setSaving(true)
     setFormError('')
     try {
-      await saveFacilityReference(kind, trimmed, editing?.id)
-      toast.success(`Facility ${label} ${editing ? 'updated' : 'created'} successfully.`)
+      await (category ? saveReportCategory(trimmed, editing?.id) : saveFacilityReference(kind, trimmed, editing?.id))
+      toast.success(`${category ? 'Report' : 'Facility'} ${label} ${editing ? 'updated' : 'created'} successfully.`)
       setEditing(null)
       setName('')
       reload()
@@ -61,11 +63,11 @@ export default function FacilityReferences({ kind }) {
     setDeleting(true)
     setDeleteError('')
     try {
-      await deleteFacilityReference(kind, selected.id)
+      await (category ? deleteReportCategory(selected.id) : deleteFacilityReference(kind, selected.id))
       dialog.current.close()
       if (editing?.id === selected.id) { setEditing(null); setName(''); setFormError('') }
       setSelected(null)
-      toast.success(`Facility ${label} deleted successfully.`)
+      toast.success(`${category ? 'Report' : 'Facility'} ${label} deleted successfully.`)
       reload(records.length === 1 && page > 1 ? page - 1 : page)
     } catch (error) {
       setDeleteError(error.response?.data?.message || `Unable to delete ${label}. Please try again.`)
@@ -75,10 +77,10 @@ export default function FacilityReferences({ kind }) {
   return <div className="mx-auto max-w-4xl">
     <Link to="/admin" className="link link-primary">Back to dashboard</Link>
     <h1 className="mt-4 text-3xl font-bold">{title}</h1>
-    <p className="mt-2">Manage the {kind} available in facility dropdowns.</p>
+    <p className="mt-2">Manage the {kind} available in {category ? 'report' : 'facility'} dropdowns.</p>
     <nav className="mt-4 flex flex-wrap gap-3" aria-label="Facility management">
-      <Link to="/admin/facilities" className="btn btn-sm">Facilities</Link>
-      <Link to={`/admin/facility-${kind === 'types' ? 'locations' : 'types'}`} className="btn btn-sm">{kind === 'types' ? 'Locations' : 'Types'}</Link>
+      <Link to={category ? "/admin/reports" : "/admin/facilities"} className="btn btn-sm">{category ? "Reports" : "Facilities"}</Link>
+      {!category && <Link to={`/admin/facility-${kind === 'types' ? 'locations' : 'types'}`} className="btn btn-sm">{kind === 'types' ? 'Locations' : 'Types'}</Link>}
     </nav>
     <section className="mt-6 rounded-box border border-base-300 bg-base-100 p-4">
       <h2 className="text-xl font-bold">{editing ? `Edit ${label}` : `Create ${label}`}</h2>
@@ -108,7 +110,7 @@ export default function FacilityReferences({ kind }) {
     </nav>
     <dialog ref={dialog} className="modal" aria-labelledby="reference-delete-title" aria-describedby="reference-delete-description" onCancel={(event) => { if (deleting) event.preventDefault() }}><div className="modal-box">
       <h2 id="reference-delete-title" className="text-xl font-bold">Delete {label}</h2>
-      <p id="reference-delete-description" className="mt-3">Delete {selected?.name}? This cannot be undone. A {label} used by a facility cannot be deleted.</p>
+      <p id="reference-delete-description" className="mt-3">Delete {selected?.name}? This cannot be undone. A {label} used by a {category ? 'report' : 'facility'} cannot be deleted.</p>
       {deleteError && <p role="alert" className="mt-3 text-error">{deleteError}</p>}
       <div className="modal-action"><button className="btn" autoFocus disabled={deleting} onClick={() => dialog.current.close()}>Cancel</button><button className="btn btn-error" disabled={deleting} onClick={remove}>{deleting ? 'Deleting…' : `Delete ${label}`}</button></div>
     </div></dialog>

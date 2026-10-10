@@ -2,11 +2,11 @@ const prisma = require("../config/prisma");
 const { parseListQuery } = require("../utils/facility");
 
 // Types and locations share the same fields but use separate models and endpoints.
-module.exports = ({ model, singular, plural, label }) => {
+module.exports = ({ model, singular, plural, label, usedBy = "facilities" }) => {
   const table = prisma[model];
   function handleError(error, res) {
     if (error.code === "P2025") return res.status(404).json({ message: `${label} not found.` });
-    if (error.code === "P2003") return res.status(409).json({ message: `${label} is used by facilities and cannot be deleted.` });
+    if (error.code === "P2003") return res.status(409).json({ message: `${label} is used by ${usedBy} and cannot be deleted.` });
     console.error(`${label} operation failed:`, error);
     return res.status(500).json({ message: "An unexpected error occurred." });
   }

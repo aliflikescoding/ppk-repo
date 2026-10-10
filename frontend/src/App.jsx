@@ -15,6 +15,11 @@ import UpdateUser from './pages/UpdateUser.jsx'
 import ApproveUsers from './pages/ApproveUsers.jsx'
 import ProtectedRoute from './auth/ProtectedRoute.jsx'
 
+import Reports from './pages/Reports.jsx'
+import CreateReport from './pages/CreateReport.jsx'
+import UpdateReport from './pages/UpdateReport.jsx'
+import ReportDetail from './pages/ReportDetail.jsx'
+
 function App() {
   return (
     <div className="flex min-h-dvh flex-col bg-base-200 text-base-content">
@@ -47,6 +52,11 @@ function App() {
           </Route>
           <Route element={<ProtectedRoute role="admin" />}>
             <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/admin/reports" element={<Reports />} />
+            <Route path="/admin/createReport" element={<CreateReport />} />
+            <Route path="/admin/updateReport/:id" element={<UpdateReport />} />
+            <Route path="/admin/reports/:id" element={<ReportDetail />} />
+            <Route path="/admin/report-categories" element={<FacilityReferences key="categories" kind="categories" />} />
             <Route path="/admin/facility-types" element={<FacilityReferences key="types" kind="types" />} />
             <Route path="/admin/facility-locations" element={<FacilityReferences key="locations" kind="locations" />} />
             <Route path="/admin/facilities" element={<Facilities manage />} />

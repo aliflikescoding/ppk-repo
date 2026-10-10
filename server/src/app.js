@@ -26,6 +26,8 @@ apiRouter.use("/users", userRoutes);
 apiRouter.use("/facilities", facilityRoutes);
 apiRouter.use("/facility-types", require("./routes/facility-type.routes"));
 apiRouter.use("/facility-locations", require("./routes/facility-location.routes"));
+apiRouter.use("/reports", require("./routes/report.routes"));
+apiRouter.use("/report-categories", require("./routes/report-category.routes"));
 
 app.use("/api", apiRouter);
 

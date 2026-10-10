@@ -67,7 +67,7 @@ model Report {
   id           Int            @id @default(autoincrement())
   user_id      String         @db.Uuid
   facility_id  Int
-  category_id  Int            @unique
+  category_id  Int
   // Allowed values: 'new', 'processed', 'done', 'rejected'. Default: 'new'.
   status       String         @default("new") @db.VarChar(9)
   description  String         @db.VarChar(500)
@@ -77,13 +77,15 @@ model Report {
   facility     Facility       @relation(fields: [facility_id], references: [id])
   category     ReportCategory @relation(fields: [category_id], references: [id])
 
+  @@index([category_id])
+  @@index([user_id])
   @@map("reports")
 }
 
 model ReportCategory {
   id     Int     @id @default(autoincrement())
   name   String  @db.VarChar(50)
-  report Report?
+  reports Report[]
 
   @@map("report_categories")
 }
