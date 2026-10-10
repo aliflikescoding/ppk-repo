@@ -1,5 +1,11 @@
+import { Route, Routes } from 'react-router-dom'
 import Header from './components/Header.jsx'
 import Footer from './components/Footer.jsx'
+import Home from './pages/Home.jsx'
+import Facilities from './pages/Facilities.jsx'
+import Login from './pages/Login.jsx'
+import Dashboard from './pages/Dashboard.jsx'
+import ProtectedRoute from './auth/ProtectedRoute.jsx'
 
 function App() {
   return (
@@ -9,8 +15,22 @@ function App() {
       </a>
       <Header />
       <main id="main-content" className="mx-auto w-full max-w-6xl flex-1 px-4 py-12 sm:px-6">
-        <h1 className="text-3xl font-bold">Welcome to Praktikum IF</h1>
-        <p className="mt-3">Your page content goes here.</p>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/facilities" element={<Facilities />} />
+          <Route path="/login" element={<Login key="user" role="user" />} />
+          <Route path="/staff/login" element={<Login key="employee" role="employee" />} />
+          <Route path="/admin/login" element={<Login key="admin" role="admin" />} />
+          <Route element={<ProtectedRoute role="user" />}>
+            <Route path="/user" element={<Dashboard />} />
+          </Route>
+          <Route element={<ProtectedRoute role="employee" />}>
+            <Route path="/staff" element={<Dashboard />} />
+          </Route>
+          <Route element={<ProtectedRoute role="admin" />}>
+            <Route path="/admin" element={<Dashboard />} />
+          </Route>
+        </Routes>
       </main>
       <Footer />
     </div>
