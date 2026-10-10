@@ -78,8 +78,8 @@ export const deleteUser = async (id) => {
   }
 };
 
-export const readFacilities = async (page = 1, limit = 20) => {
-  const response = await api.get('/facilities', { params: { page, limit } });
+export const readFacilities = async (page = 1, limit = 20, filters = {}) => {
+  const response = await api.get('/facilities', { params: { ...filters, page, limit } });
   return response.data;
 };
 
@@ -265,4 +265,19 @@ export const readMyReports = async (params = {}) => {
 export const readMyReservations = async (params = {}) => {
   const response = await api.get('/reservations/me', { ...userRequestConfig(), params });
   return response.data;
+};
+
+export const readFacilityCalendar = async (facilityId, from, to, signal) => {
+  const reservations = [];
+  let page = 1;
+  let data;
+  do {
+    const response = await api.get('/reservations/calendar', {
+      params: { facility_id: facilityId, from, to, page: page++, limit: 100 },
+      signal,
+    });
+    data = response.data;
+    reservations.push(...data.reservations);
+  } while (data.has_next);
+  return reservations;
 };

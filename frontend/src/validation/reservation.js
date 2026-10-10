@@ -46,3 +46,11 @@ export function buildReservationData(values, editing = false) {
 export function formatReservationTime(value) {
   return new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Jakarta', dateStyle: 'medium', timeStyle: 'short' }).format(new Date(value))
 }
+
+export function buildUserReservationData(values) {
+  return {
+    facility_id: values.facility_id,
+    start_time: toReservationTimestamp(values.start_time),
+    end_time: toReservationTimestamp(values.end_time),
+  }
+}

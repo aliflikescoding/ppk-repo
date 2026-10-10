@@ -1,11 +1,18 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { toast } from 'react-toastify'
-import { deleteFacility, readFacilities, facilityImageUrl } from '../api/index.js'
+import { deleteFacility, readFacilities, readAllFacilityReferences, facilityImageUrl } from '../api/index.js'
 
 const pageSize = 20
+const emptyFilters = { search: '', location_id: '', type_id: '', min_capacity: '', max_capacity: '', is_active: '' }
 
 export default function Facilities({ manage = false }) {
+  const [draftFilters, setDraftFilters] = useState(emptyFilters)
+  const [filters, setFilters] = useState({})
+  const [filterError, setFilterError] = useState('')
+  const [references, setReferences] = useState(null)
+  const [referenceError, setReferenceError] = useState('')
+  const [referenceAttempt, setReferenceAttempt] = useState(0)
   const [page, setPage] = useState(1)
   const [hasNext, setHasNext] = useState(false)
   const [attempt, setAttempt] = useState(0)
@@ -16,6 +23,42 @@ export default function Facilities({ manage = false }) {
   const [deleting, setDeleting] = useState(false)
   const [deleteError, setDeleteError] = useState('')
   const deleteDialog = useRef(null)
+
+  useEffect(() => {
+    let active = true
+    Promise.all([readAllFacilityReferences('locations'), readAllFacilityReferences('types')]).then(([locations, types]) => {
+      if (active) setReferences({ locations, types })
+    }).catch((err) => {
+      if (active) setReferenceError(err.response?.data?.message || 'Unable to load locations and types. Please try again.')
+    })
+    return () => { active = false }
+  }, [referenceAttempt])
+
+  function applyFilters(event) {
+    event.preventDefault()
+    for (const key of ['min_capacity', 'max_capacity']) {
+      const value = draftFilters[key]
+      if (value && (!/^[1-9]\d*$/.test(value) || Number(value) > 2147483647)) {
+        setFilterError('Capacity must be a positive whole number up to 2147483647.')
+        return
+      }
+    }
+    if (draftFilters.min_capacity && draftFilters.max_capacity && Number(draftFilters.min_capacity) > Number(draftFilters.max_capacity)) {
+      setFilterError('Minimum capacity cannot exceed maximum capacity.')
+      return
+    }
+    setFilterError(''); setError(''); setLoading(true); setPage(1)
+    setFilters(Object.fromEntries(Object.entries(draftFilters).map(([key, value]) => [key, value.trim()]).filter(([, value]) => value !== '')))
+  }
+
+  function resetFilters() {
+    setDraftFilters(emptyFilters); setFilters({}); setFilterError(''); setError(''); setLoading(true); setPage(1)
+  }
+
+  function updateFilter(key, value) {
+    setDraftFilters((current) => ({ ...current, [key]: value }))
+    setFilterError('')
+  }
 
   function openDelete(facility) {
     setSelectedFacility(facility)
@@ -46,13 +89,11 @@ export default function Facilities({ manage = false }) {
 
     async function loadFacilities() {
       try {
-        const data = await readFacilities(page, pageSize)
+        const data = await readFacilities(page, pageSize, filters)
         if (active) { setFacilities(data.facilities); setHasNext(data.has_next) }
       } catch (err) {
         if (active) {
-          setError(err.response?.status === 403
-            ? 'Only admins can view facilities.'
-            : 'Unable to load facilities. Please try again.')
+          setError(err.response?.data?.message || 'Unable to load facilities. Please try again.')
         }
       } finally {
         if (active) setLoading(false)
@@ -61,7 +102,7 @@ export default function Facilities({ manage = false }) {
 
     loadFacilities()
     return () => { active = false }
-  }, [page, attempt])
+  }, [page, attempt, filters])
 
   function changePage(nextPage) {
     setLoading(true)
@@ -92,6 +133,18 @@ export default function Facilities({ manage = false }) {
         </div>}
       </div>
 
+      <form className="mt-6 rounded-box border border-base-300 bg-base-100 p-4" onSubmit={applyFilters} noValidate aria-label="Facility filters">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div><label htmlFor="facility-search" className="mb-1 block font-medium">Search facilities</label><input id="facility-search" type="search" maxLength={100} className="input w-full" placeholder="Facility, type, or location name" value={draftFilters.search} onChange={(event) => updateFilter('search', event.target.value)} /></div>
+          {[['location_id', 'Location', 'locations'], ['type_id', 'Type', 'types']].map(([key, label, kind]) => <div key={key}><label htmlFor={`facility-${key}`} className="mb-1 block font-medium">{label}</label><select id={`facility-${key}`} className="select w-full" value={draftFilters[key]} disabled={!references} onChange={(event) => updateFilter(key, event.target.value)}><option value="">All {kind}</option>{references?.[kind].map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select></div>)}
+          {[['min_capacity', 'Minimum capacity'], ['max_capacity', 'Maximum capacity']].map(([key, label]) => <div key={key}><label htmlFor={`facility-${key}`} className="mb-1 block font-medium">{label}</label><input id={`facility-${key}`} type="number" min="1" max="2147483647" step="1" className="input w-full" placeholder="Any capacity" value={draftFilters[key]} onChange={(event) => updateFilter(key, event.target.value)} aria-invalid={Boolean(filterError)} aria-describedby={filterError ? 'facility-filter-error' : undefined} /></div>)}
+          <div><label htmlFor="facility-availability" className="mb-1 block font-medium">Availability</label><select id="facility-availability" className="select w-full" value={draftFilters.is_active} onChange={(event) => updateFilter('is_active', event.target.value)}><option value="">All facilities</option><option value="true">Active</option><option value="false">Inactive</option></select></div>
+        </div>
+        {referenceError ? <div role="alert" className="mt-3"><p className="text-error">{referenceError}</p><button type="button" className="btn btn-sm mt-2" onClick={() => { setReferenceError(''); setReferenceAttempt((value) => value + 1) }}>Retry loading filters</button></div> : !references && <p role="status" className="mt-3">Loading locations and types…</p>}
+        {filterError && <p id="facility-filter-error" role="alert" className="mt-3 text-error">{filterError}</p>}
+        <div className="mt-4 flex gap-2"><button type="submit" className="btn btn-primary">Apply filters</button><button type="button" className="btn" onClick={resetFilters}>Reset filters</button></div>
+      </form>
+
       <section
         className="mt-6 rounded-box border border-base-300 bg-base-100 p-4"
         aria-label="Facilities list"
@@ -115,43 +168,26 @@ export default function Facilities({ manage = false }) {
             {page === 1 ? "No facilities found." : "No more facilities on this page."}
           </p>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="table w-full text-left">
-              <caption className="sr-only">
-                Facilities, page {page}
-              </caption>
-              <thead>
-                <tr>
-                  <th scope="col">Name</th>
-                  <th scope="col">Capacity</th>
-                  <th scope="col">Type</th>
-                  <th scope="col">Location</th>
-                  <th scope="col">Status</th>
-                  {manage && <th scope="col" className="text-right">Actions</th>}
-                </tr>
-              </thead>
-              <tbody>
-                {facilities.map((facility) => (
-                  <tr key={facility.id}>
-                    <td><div className="flex items-center gap-3">{facility.images?.[0] && <img src={facilityImageUrl(facility.images[0].image_url)} alt={facility.name} className="h-16 w-24 rounded object-cover" />}<span>{facility.name}</span></div></td>
-                    <td>{facility.capacity}</td>
-                    <td>{facility.type?.name || facility.type_id}</td>
-                    <td>{facility.location?.name || facility.location_id}</td>
-                    <td>
-                      <span className={`badge ${facility.is_active === true ? 'badge-success' : facility.is_active === false ? 'badge-error' : 'badge-outline'}`}>
-                        {facility.is_active === true ? 'Active' : facility.is_active === false ? 'Inactive' : 'Unknown'}
-                      </span>
-                    </td>
-                    {manage && <td>
-                      <div className="flex justify-end gap-2">
-                        <Link to={`/admin/updateFacility/${facility.id}`} className="btn btn-sm" aria-label={`Edit ${facility.name}`}>Edit</Link>
-                        <button type="button" className="btn btn-error btn-sm" onClick={() => openDelete(facility)} aria-label={`Delete ${facility.name}`}>Delete</button>
-                      </div>
-                    </td>}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <div className="grid gap-4 sm:grid-cols-2">
+            {facilities.map((facility) => (
+              <article key={facility.id} className="card relative overflow-hidden border border-base-300 bg-base-100 shadow-sm transition-shadow hover:shadow-md">
+                {facility.images?.[0] ? <figure><img src={facilityImageUrl(facility.images[0].image_url)} alt={facility.name} loading="lazy" className="h-48 w-full object-cover" /></figure> : <div className="flex h-48 items-center justify-center bg-base-200 text-base-content/60">No photo available</div>}
+                <div className="card-body">
+                  <div className="flex items-start justify-between gap-3">
+                    <h2 className="card-title break-words"><Link to={`${manage ? '/admin' : ''}/facilities/${facility.id}`} className="after:absolute after:inset-0 focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary" aria-label={`View ${facility.name} details`}>{facility.name}</Link></h2>
+                    <span className={`badge shrink-0 ${facility.is_active ? 'badge-success' : 'badge-error'}`}>{facility.is_active ? 'Active' : 'Inactive'}</span>
+                  </div>
+                  <dl className="mt-2 space-y-2">
+                    {[['Capacity', `${facility.capacity} people`], ['Type', facility.type?.name || facility.type_id], ['Location', facility.location?.name || facility.location_id]].map(([label, value]) => <div key={label}><dt className="text-sm text-base-content/60">{label}</dt><dd className="break-words font-medium">{value}</dd></div>)}
+                  </dl>
+                  <p className="mt-3 text-sm text-primary">View details →</p>
+                  {manage && <div className="card-actions relative z-10 mt-3 justify-end">
+                    <Link to={`/admin/updateFacility/${facility.id}`} className="btn btn-sm" aria-label={`Edit ${facility.name}`}>Edit</Link>
+                    <button type="button" className="btn btn-error btn-sm" disabled={deleting} onClick={() => openDelete(facility)} aria-label={`Delete ${facility.name}`}>Delete</button>
+                  </div>}
+                </div>
+              </article>
+            ))}
           </div>
         )}
       </section>

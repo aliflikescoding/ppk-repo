@@ -3,6 +3,9 @@ import Header from './components/Header.jsx'
 import Footer from './components/Footer.jsx'
 import Home from './pages/Home.jsx'
 import Facilities from './pages/Facilities.jsx'
+import FacilityDetail from './pages/FacilityDetail.jsx'
+import SubmitReport from './pages/SubmitReport.jsx'
+import SubmitReservation from './pages/SubmitReservation.jsx'
 import FacilityReferences from './pages/FacilityReferences.jsx'
 import CreateFacility from './pages/CreateFacility.jsx'
 import UpdateFacility from './pages/UpdateFacility.jsx'
@@ -48,6 +51,9 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/facilities" element={<Facilities />} />
+          <Route path="/facilities/:id" element={<FacilityDetail />} />
+          <Route path="/facilities/:id/report" element={<SubmitReport />} />
+          <Route path="/facilities/:id/reserve" element={<SubmitReservation />} />
           <Route path="/login" element={<Login key="user" role="user" />} />
           <Route path="/register" element={<Register />} />
           <Route
@@ -87,6 +93,7 @@ function App() {
             <Route path="/admin/facility-types" element={<FacilityReferences key="types" kind="types" />} />
             <Route path="/admin/facility-locations" element={<FacilityReferences key="locations" kind="locations" />} />
             <Route path="/admin/facilities" element={<Facilities manage />} />
+            <Route path="/admin/facilities/:id" element={<FacilityDetail manage />} />
             <Route path="/admin/createFacility" element={<CreateFacility />} />
             <Route path="/admin/updateFacility/:id" element={<UpdateFacility />} />
             <Route path="/admin/users" element={<Users />} />

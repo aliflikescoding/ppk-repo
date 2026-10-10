@@ -1,14 +1,16 @@
 import { useState } from 'react'
-import { Link, Navigate, useNavigate } from 'react-router-dom'
+import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { roles, useAuth } from '../auth/auth.js'
 import SessionStatus from '../auth/SessionStatus.jsx'
 
 export default function Login({ role }) {
   const { user, loading, error: sessionError, login } = useAuth()
   const navigate = useNavigate()
+  const location = useLocation()
+  const config = roles[role]
+  const returnTo = role === 'user' && /^\/facilities\/[1-9]\d*\/(report|reserve)$/.test(location.state?.returnTo || '') ? location.state.returnTo : config.dashboard
   const [pending, setPending] = useState(false)
   const [error, setError] = useState('')
-  const config = roles[role]
 
   async function handleSubmit(event) {
     event.preventDefault()
@@ -24,7 +26,7 @@ export default function Login({ role }) {
     setError('')
     try {
       await login({ email, password }, role)
-      navigate(config.dashboard, { replace: true })
+      navigate(returnTo, { replace: true })
     } catch (err) {
       setError(err.response?.data?.message || (err.response ? 'Unable to sign in. Please try again.' : err.request ? 'Unable to reach the server. Please try again.' : err.message))
     } finally {
@@ -33,7 +35,7 @@ export default function Login({ role }) {
   }
 
   if (loading || sessionError) return <SessionStatus />
-  if (user) return <Navigate to={roles[user.role].dashboard} replace />
+  if (user) return <Navigate to={user.role === role ? returnTo : roles[user.role].dashboard} replace />
 
   return (
     <section className="card mx-auto max-w-md bg-base-100 shadow-sm">
