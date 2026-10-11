@@ -125,6 +125,7 @@
 .report-category svg { flex-shrink: 0; margin-top: 2px; }
 .report-summary { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; margin: 16px 0 24px; color: #526880; font-size: 13px; line-height: 1.8; white-space: pre-wrap; overflow-wrap: anywhere; }
 .report-history-body .facility-details-link { margin-top: auto; }
+.report-card-reporter { margin-bottom: 24px; color: #526880; font-size: 12px; line-height: 1.8; overflow-wrap: anywhere; }
 .report-reason { margin-top: 24px; padding-top: 20px; border-top: 1px solid #e8edf3; }
 .report-reason h3 { font-size: 14px; font-weight: 700; }
 .report-reason .reservation-detail-reason { margin-top: 10px; }

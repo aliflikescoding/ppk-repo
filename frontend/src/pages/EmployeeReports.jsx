@@ -30,34 +30,31 @@ export default function EmployeeReports({ history = false }) {
     setError(''); setLoading(true); setPage(nextPage); setAttempt((value) => value + 1)
   }
 
-  return <div className={history ? 'reservation-page' : 'mx-auto max-w-5xl'}>
+  return <div className="reservation-page">
     <Link to={basePath} className="auth-back"><FiArrowLeft aria-hidden="true" /> Back to dashboard</Link>
-    <div className={history ? 'facilities-heading' : 'mt-4 flex flex-wrap items-center justify-between gap-4'}><div>{history && <p className="auth-eyebrow">KEEPING CAMPUS AT ITS BEST</p>}<h1 className="text-3xl font-bold">{history ? 'Report history' : 'Reports'}</h1><p className="mt-2">{history ? 'Follow the issues you’ve reported and see how they’re progressing.' : 'Manage facility reports and their progress.'}</p></div></div>
-    <form className={history ? 'reservation-filters facilities-filters' : 'mt-6 flex flex-wrap items-end gap-3'} aria-label="Report filters" onSubmit={(event) => {
+    <div className="facilities-heading"><div><p className="auth-eyebrow">KEEPING CAMPUS AT ITS BEST</p><h1 className="text-3xl font-bold">{history ? 'Report history' : 'Reports'}</h1><p className="mt-2">{history ? 'Follow the issues you’ve reported and see how they’re progressing.' : 'Manage facility reports and their progress.'}</p></div></div>
+    <form className="reservation-filters facilities-filters" aria-label="Report filters" onSubmit={(event) => {
       event.preventDefault(); setLoading(true); setError(''); setPage(1)
       setFilters({ ...(search.trim() ? { search: search.trim() } : {}), ...(status ? { status } : {}) })
     }}>
       <div className="flex-1"><label htmlFor="report-search" className="mb-1 block">Search reports</label><input id="report-search" className="input w-full" maxLength={100} value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Description, facility, or category" /></div>
       <div><label htmlFor="report-status" className="mb-1 block">Status</label><select id="report-status" className="select" value={status} onChange={(event) => setStatus(event.target.value)}><option value="">All statuses</option>{reportStatuses.map((value) => <option key={value}>{value}</option>)}</select></div>
-      <button className={history ? 'btn auth-submit' : 'btn'} type="submit"><FiSearch aria-hidden="true" /> Apply filters</button>
+      <button className="btn auth-submit" type="submit"><FiSearch aria-hidden="true" /> Apply filters</button>
     </form>
-    <section className={history ? 'reservation-results' : 'mt-6 rounded-box border border-base-300 bg-base-100 p-4'} aria-label="Reports list" aria-busy={loading}>
-      {loading ? <p role="status" className={history ? 'facilities-state' : undefined}>Loading reports…</p> : error ? <div role="alert" className={history ? 'facilities-state' : undefined}><p>{error}</p><button className="btn mt-3" onClick={() => reload()}>Try again</button></div> : !data?.reports.length ? <div role="status" className={history ? 'facilities-state' : undefined}><FiClipboard aria-hidden="true" /><p>No reports found.</p>{history && <Link to="/facilities" className="landing-text-link">Explore facilities <FiArrowRight aria-hidden="true" /></Link>}</div> : history ? <><div className="facilities-results-heading"><h2>Your reports</h2><p>{data.total} reports</p></div><div className="reservation-grid">{data.reports.map((report) => <article key={report.id} className="facility-card report-history-card">
+    <section className="reservation-results" aria-label="Reports list" aria-busy={loading}>
+      {loading ? <p role="status" className="facilities-state">Loading reports…</p> : error ? <div role="alert" className="facilities-state"><p>{error}</p><button className="btn mt-3" onClick={() => reload()}>Try again</button></div> : !data?.reports.length ? <div role="status" className="facilities-state"><FiClipboard aria-hidden="true" /><p>No reports found.</p>{history && <Link to="/facilities" className="landing-text-link">Explore facilities <FiArrowRight aria-hidden="true" /></Link>}</div> : <><div className="facilities-results-heading"><h2>{history ? 'Your reports' : 'Campus reports'}</h2><p>{data.total} reports</p></div><div className="reservation-grid">{data.reports.map((report) => <article key={report.id} className="facility-card report-history-card">
         <div className="facility-card-image">{report.photo_report ? <img src={reportImageUrl(report.photo_report)} alt={`Photo submitted for report ${report.id}`} loading="lazy" /> : <div className="facility-card-placeholder"><FiClipboard aria-hidden="true" /><span>No photo available</span></div>}</div>
         <div className="report-history-body">
           <div className="reservation-card-top"><p className="auth-eyebrow">REPORT #{report.id}</p><span className={`reservation-status status-${report.status}`}>{report.status}</span></div>
           <h3>{report.facility?.name || `Facility ${report.facility_id}`}</h3>
           <p className="report-category"><FiMapPin aria-hidden="true" /> {report.category?.name || `Category ${report.category_id}`}</p>
           <p className="report-summary">{report.description}</p>
-          <Link to={`/user/reports/${report.id}`} className="facility-details-link" aria-label={`View report ${report.id}`}><span className="facility-animated-text">View report</span><FiArrowRight aria-hidden="true" /></Link>
+          {!history && <p className="report-card-reporter"><strong>Reported by</strong><br />{report.user?.user_name || report.user?.email || report.user_id}</p>}
+          <Link to={`${basePath}/reports/${report.id}${history ? '' : '/resolve'}`} className="facility-details-link" aria-label={`View report ${report.id}`}><span className="facility-animated-text">{history || ['done', 'rejected'].includes(report.status) ? 'View report' : 'Resolve report'}</span><FiArrowRight aria-hidden="true" /></Link>
         </div>
-      </article>)}</div></> : <><p className="mb-3 text-sm">{data.total} reports</p><div className="overflow-x-auto"><table className="table"><caption className="sr-only">Reports, page {page}</caption><thead><tr><th scope="col">Report</th><th scope="col">Facility</th><th scope="col">Category</th><th scope="col">Reporter</th><th scope="col">Status</th><th scope="col">Actions</th></tr></thead><tbody>{data.reports.map((report) => <tr key={report.id}>
-        <td><Link to={`${basePath}/reports/${report.id}${history ? '' : '/resolve'}`} className="link link-primary">Report #{report.id}</Link><img src={reportImageUrl(report.photo_report)} alt={`Report ${report.id} photo`} className="my-2 h-16 w-24 rounded object-cover" /><p className="max-w-xs whitespace-pre-wrap break-words">{report.description}</p></td>
-        <td>{report.facility?.name || report.facility_id}</td><td>{report.category?.name || report.category_id}</td><td>{report.user?.user_name || report.user?.email || report.user_id}</td><td><span className={`badge ${report.status === 'done' ? 'badge-success' : report.status === 'rejected' ? 'badge-error' : report.status === 'processed' ? 'badge-info' : 'badge-outline'}`}>{report.status}</span></td>
-        <td><Link to={`${basePath}/reports/${report.id}${history ? '' : '/resolve'}`} className="btn btn-primary btn-sm" aria-label={`${history || ['done', 'rejected'].includes(report.status) ? 'View' : 'Resolve'} report ${report.id}`}>{history || ['done', 'rejected'].includes(report.status) ? 'View' : 'Resolve'}</Link></td>
-      </tr>)}</tbody></table></div></>}
+      </article>)}</div></>}
     </section>
-    <nav className={history ? 'facilities-pagination' : 'mt-4 flex items-center justify-center gap-3'} aria-label="Reports pagination"><button className="btn btn-sm" disabled={loading || page === 1} onClick={() => reload(page - 1)}>Previous</button><span aria-live="polite">Page {page}</span><button className="btn btn-sm" disabled={loading || Boolean(error) || !data?.has_next} onClick={() => reload(page + 1)}>Next</button></nav>
+    <nav className="facilities-pagination" aria-label="Reports pagination"><button className="btn btn-sm" disabled={loading || page === 1} onClick={() => reload(page - 1)}>Previous</button><span aria-live="polite">Page {page}</span><button className="btn btn-sm" disabled={loading || Boolean(error) || !data?.has_next} onClick={() => reload(page + 1)}>Next</button></nav>
 
   </div>
 }
