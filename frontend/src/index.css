@@ -118,6 +118,20 @@
 .landing-cta p:last-child { color: #d5e6f5; font-size: 14px; }
 .landing-cta-button { flex-shrink: 0; min-height: 48px; border-radius: 10px; background: white; border-color: white; color: #174e89; }
 .landing-cta-button:hover { background: #e1f0fc; border-color: #e1f0fc; }
+.report-history-card { display: flex; flex-direction: column; }
+.report-history-body { display: flex; flex-direction: column; flex: 1; padding: 24px; }
+.report-history-body h3 { margin: 16px 0 10px; font-size: 24px; font-weight: 700; letter-spacing: -.025em; overflow-wrap: anywhere; }
+.report-category { display: flex; align-items: start; gap: 8px; color: #35618c; font-size: 12px; overflow-wrap: anywhere; }
+.report-category svg { flex-shrink: 0; margin-top: 2px; }
+.report-summary { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; margin: 16px 0 24px; color: #526880; font-size: 13px; line-height: 1.8; white-space: pre-wrap; overflow-wrap: anywhere; }
+.report-history-body .facility-details-link { margin-top: auto; }
+.report-reason { margin-top: 24px; padding-top: 20px; border-top: 1px solid #e8edf3; }
+.report-reason h3 { font-size: 14px; font-weight: 700; }
+.report-reason .reservation-detail-reason { margin-top: 10px; }
+.report-photo-link { display: block; margin-top: 24px; }
+.report-detail-photo { width: 100%; max-height: 480px; object-fit: contain; border: 1px solid #dfe8f2; border-radius: 14px; background: #f5f9fd; }
+.report-photo-link > span { display: flex; align-items: center; gap: 8px; margin-top: 14px; color: #174e89; font-size: 12px; font-weight: 600; }
+.report-photo-link:hover > span { text-decoration: underline; }
 .reservation-page { color: #16365b; }
 .reservation-notice { display: flex; align-items: start; gap: 12px; margin-top: 24px; padding: 18px 22px; border: 1px solid #cfe3f3; border-radius: 14px; background: #edf7ff; color: #35618c; font-size: 12px; line-height: 1.8; }
 .reservation-notice > svg { flex-shrink: 0; margin-top: 3px; font-size: 18px; }
