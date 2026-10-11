@@ -1,10 +1,11 @@
-import { FiArrowUpRight, FiCalendar, FiCheckCircle, FiGrid } from 'react-icons/fi'
+import { FiArrowUpRight, FiCalendar, FiCheckCircle } from 'react-icons/fi'
+import BrandLogo from './BrandLogo.jsx'
 
 export default function AuthLayout({ children, registration = false }) {
   return (
     <section className="auth-shell">
       <aside className="auth-visual">
-        <div className="auth-brand"><span className="auth-brand-icon"><FiGrid /></span> Revesrv <span className="auth-brand-tag">CAMPUS SPACES</span></div>
+        <div className="auth-brand"><BrandLogo /><span className="auth-brand-tag">CAMPUS SPACES</span></div>
         <div className="auth-story">
           <p className="auth-eyebrow">A BETTER CAMPUS STARTS HERE</p>
           <h2>Your campus.<br />Your possibilities.</h2>
