@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
+import { FiArrowLeft, FiCalendar, FiClipboard, FiGrid, FiImage, FiInfo, FiMapPin, FiTool, FiUsers } from 'react-icons/fi'
+import { useAuth } from '../auth/auth.js'
 import FacilityCalendar from '../components/FacilityCalendar.jsx'
 import { facilityImageUrl, readFacilityById } from '../api/index.js'
 
@@ -9,6 +11,7 @@ export default function FacilityDetail({ manage = false }) {
 }
 
 function Detail({ id, manage }) {
+  const { user, loading: sessionLoading } = useAuth()
   const [facility, setFacility] = useState(null)
   const [error, setError] = useState('')
   const [attempt, setAttempt] = useState(0)
@@ -23,26 +26,30 @@ function Detail({ id, manage }) {
     return () => { active = false }
   }, [id, attempt])
 
-  return <div className="mx-auto max-w-4xl">
-    <Link to={manage ? '/admin/facilities' : '/facilities'} className="link link-primary">Back to facilities</Link>
-    {error ? <div role="alert" className="mt-4"><p>{error}</p><button type="button" className="btn mt-3" onClick={() => { setError(''); setAttempt((value) => value + 1) }}>Try again</button></div> : !facility ? <p role="status" className="mt-4">Loading facility…</p> : <section className="card mt-4 border border-base-300 bg-base-100 shadow-sm">
-      <div className="card-body">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <h1 className="text-3xl font-bold break-words">{facility.name}</h1>
-          <span className={`badge ${facility.is_active ? 'badge-success' : 'badge-error'}`}>{facility.is_active ? 'Active' : 'Inactive'}</span>
+  const canSubmit = Boolean(user) && !sessionLoading && facility?.is_active === true
+
+  return <div className="facilities-page facility-detail-page">
+    <Link to={manage ? '/admin/facilities' : '/facilities'} className="auth-back"><FiArrowLeft aria-hidden="true" /> Back to facilities</Link>
+    {error ? <div role="alert" className="facilities-state"><p>{error}</p><button type="button" className="btn auth-submit" onClick={() => { setError(''); setAttempt((value) => value + 1) }}>Try again</button></div> : !facility ? <p role="status" className="facilities-state">Loading facility…</p> : <>
+      <section className="facilities-heading reservation-detail-heading" aria-labelledby="facility-title"><div><p className="auth-eyebrow">YOUR CAMPUS SPACES</p><h1 id="facility-title">{facility.name}</h1><p className="facilities-intro">A closer look at your next campus space.</p></div><span className={`reservation-status ${facility.is_active ? 'status-done' : 'status-rejected'}`}>{facility.is_active ? 'Active' : 'Under maintenance'}</span></section>
+      <section className="facility-detail-overview" aria-label="Facility information">
+        <div className="facility-detail-cover">{facility.images?.[0] ? <img src={facilityImageUrl(facility.images[0].image_url)} alt={facility.name} /> : <div className="facility-card-placeholder"><FiGrid aria-hidden="true" /><span>Space for your next idea</span><small>No photo available</small></div>}</div>
+        <div className="facility-detail-summary"><h2>About this space</h2><dl className="reservation-detail-data">{[[FiUsers, 'Capacity', `${facility.capacity} people`], [FiGrid, 'Type', facility.type?.name || facility.type_id], [FiMapPin, 'Location', facility.location?.name || facility.location_id]].map(([Icon, label, value]) => <div key={label}><dt><Icon aria-hidden="true" /> {label}</dt><dd>{value}</dd></div>)}</dl></div>
+      </section>
+      <section className="reservation-detail-panel facility-detail-actions" aria-labelledby="facility-action-title">
+        <h2 id="facility-action-title"><FiCalendar aria-hidden="true" /> Plan your next step</h2>
+        {!facility.is_active && <p id="facility-maintenance" role="status" className="reservation-notice"><FiTool aria-hidden="true" /><span>Sorry, this facility is under maintenance. Reports and reservations are unavailable until it is active again.</span></p>}
+        {!sessionLoading && !user && <p id="facility-sign-in" className="reservation-notice"><FiInfo aria-hidden="true" /><span>Please <Link to="/login" className="underline font-semibold">sign in</Link> to submit a report or reservation.</span></p>}
+        {sessionLoading && <p role="status" className="reservation-timezone">Checking your session…</p>}
+        <div className="resolution-actions">
+          {canSubmit ? <><Link to={`/facilities/${facility.id}/reserve`} className="btn auth-submit"><FiCalendar aria-hidden="true" /> Submit a reservation</Link><Link to={`/facilities/${facility.id}/report`} className="btn facility-report-button"><FiClipboard aria-hidden="true" /> Submit a report</Link></> : <><button type="button" disabled className="btn auth-submit" aria-describedby={!facility.is_active ? 'facility-maintenance' : !user && !sessionLoading ? 'facility-sign-in' : undefined}><FiCalendar aria-hidden="true" /> Submit a reservation</button><button type="button" disabled className="btn facility-report-button" aria-describedby={!facility.is_active ? 'facility-maintenance' : !user && !sessionLoading ? 'facility-sign-in' : undefined}><FiClipboard aria-hidden="true" /> Submit a report</button></>}
         </div>
-        <dl className="mt-4 grid gap-4 sm:grid-cols-3">
-          {[['Capacity', `${facility.capacity} people`], ['Type', facility.type?.name || facility.type_id], ['Location', facility.location?.name || facility.location_id]].map(([label, value]) => <div key={label}><dt className="font-semibold">{label}</dt><dd className="mt-1 break-words">{value}</dd></div>)}
-        </dl>
-        <div className="card-actions mt-5">
-          <Link to={`/facilities/${facility.id}/report`} className="btn">Submit a report</Link>
-          <Link to={`/facilities/${facility.id}/reserve`} className="btn btn-primary">Submit a reservation</Link>
-        </div>
-        <FacilityCalendar facilityId={facility.id} active={facility.is_active} />
-        <h2 className="mt-6 text-xl font-semibold">Photos</h2>
-        {facility.images?.length ? <div className="mt-3 grid gap-4 sm:grid-cols-2">{facility.images.map((image, index) => <a key={image.id || image.image_url} href={facilityImageUrl(image.image_url)} target="_blank" rel="noreferrer" className="rounded-box focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary" aria-label={`Open ${facility.name} photo ${index + 1}`}><img src={facilityImageUrl(image.image_url)} alt={`${facility.name}, photo ${index + 1}`} loading="lazy" className="h-64 w-full rounded-box bg-base-200 object-contain" /></a>)}</div> : <p className="mt-2 text-base-content/60">No photos available.</p>}
-        {manage && <div className="card-actions mt-6"><Link to={`/admin/updateFacility/${facility.id}`} className="btn btn-primary">Edit facility</Link></div>}
-      </div>
-    </section>}
+      </section>
+      <div className="reservation-detail-panel facility-calendar-panel"><FacilityCalendar facilityId={facility.id} active={facility.is_active} /></div>
+      <section className="reservation-detail-panel facility-photos-panel" aria-labelledby="facility-photos-title"><h2 id="facility-photos-title"><FiImage aria-hidden="true" /> Photos</h2>
+        {facility.images?.length ? <div className="facility-photo-grid">{facility.images.map((image, index) => <a key={image.id || image.image_url} href={facilityImageUrl(image.image_url)} target="_blank" rel="noreferrer" className="facility-photo-link" aria-label={`Open ${facility.name} photo ${index + 1} (opens in a new tab)`}><img src={facilityImageUrl(image.image_url)} alt={`${facility.name}, photo ${index + 1}`} loading="lazy" /><span>Photo {index + 1} · View full image</span></a>)}</div> : <p className="reservation-detail-reason">No photos available.</p>}
+      </section>
+      {manage && <Link to={`/admin/updateFacility/${facility.id}`} className="btn auth-submit mt-6">Edit facility</Link>}
+    </>}
   </div>
 }
