@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { toast } from 'react-toastify'
-import { formatReservationTime } from '../validation/reservation.js'
+import { FiArrowLeft, FiCalendar, FiCheck, FiFileText, FiInfo, FiUser, FiX } from 'react-icons/fi'
+import { formatReservationTime, reservationStatusLabel } from '../validation/reservation.js'
 import { readReservationById, updateReservation } from '../api/index.js'
 
 export default function ResolveReservation() {
@@ -63,18 +64,30 @@ function ResolveReservationPage({ id }) {
     }
   }
 
-  return <div className="mx-auto max-w-2xl">
-    {saving ? <span className="text-sm">Saving resolution…</span> : <Link to="/employee/reservations" className="link link-primary">Back to reservations</Link>}
-    {error ? <div role="alert" className="mt-4"><p>{error}</p><button type="button" className="btn mt-3" onClick={() => { setError(''); setAttempt((value) => value + 1) }}>Try again</button></div> : !reservation ? <p role="status" className="mt-4">Loading reservation and preparing resolution…</p> : <section className="card mt-4 border border-base-300 bg-base-100 shadow-sm"><div className="card-body">
-      <h1 className="text-3xl font-bold">Resolve reservation #{reservation.id}</h1>
-      <dl className="mt-3 space-y-3">{[['Facility', reservation.facility?.name || reservation.facility_id], ['Reserved by', reservation.user?.user_name || reservation.user?.email || reservation.user_id], ['Start (Asia/Jakarta)', formatReservationTime(reservation.start_time)], ['End (Asia/Jakarta)', formatReservationTime(reservation.end_time)], ['Status', reservation.status]].map(([label, value]) => <div key={label}><dt className="font-semibold">{label}</dt><dd className="whitespace-pre-wrap break-words">{value}</dd></div>)}</dl>
-      {reservation.status === 'processed' ? <form className="mt-4" noValidate onSubmit={finish} aria-busy={saving}><fieldset disabled={saving}>
-        <p className="mb-3">This reservation stays processed when you go back. Enter a reason to approve or reject it. Approval marks it done and reserves the time slot; overlapping bookings cannot be approved.</p>
-        <label htmlFor="resolution-reason" className="mb-1 block font-medium">Reason (required)</label>
-        <textarea id="resolution-reason" className="textarea w-full" required maxLength={500} value={reason} onChange={(event) => { setReason(event.target.value); setSaveError('') }} aria-invalid={Boolean(saveError)} aria-describedby={saveError ? 'resolution-error' : undefined} />
-        {saveError && <p id="resolution-error" role="alert" className="mt-2 text-error">{saveError}</p>}
-        <div className="mt-4 flex gap-3"><button type="submit" value="done" className="btn btn-success">{saving ? 'Saving…' : 'Approve reservation'}</button><button type="submit" value="rejected" className="btn btn-error">Reject</button></div>
-      </fieldset></form> : <div className="mt-4"><p>This reservation has already been {reservation.status === 'done' ? 'approved' : 'rejected'}.</p><h2 className="mt-3 font-semibold">Reason</h2><p className="whitespace-pre-wrap break-words">{reservation.reason || 'No reason provided.'}</p></div>}
-    </div></section>}
+  return <div className="reservation-page">
+    {saving ? <p role="status" className="auth-back">Saving resolution…</p> : <Link to="/employee/reservations" className="auth-back"><FiArrowLeft aria-hidden="true" /> Back to reservations</Link>}
+    {error ? <div role="alert" className="facilities-state"><p>{error}</p><button type="button" className="btn auth-submit" onClick={() => { setError(''); setAttempt((value) => value + 1) }}>Try again</button></div> : !reservation ? <p role="status" className="facilities-state">Loading reservation and preparing resolution…</p> : <>
+      <section className="facilities-heading reservation-detail-heading" aria-labelledby="resolve-title">
+        <div><p className="auth-eyebrow">CAMPUS BOOKING REVIEW</p><h1 id="resolve-title">{reservation.status === 'processed' ? 'Resolve' : 'Review'} reservation #{reservation.id}</h1><p className="facilities-intro">{reservation.facility?.name || `Facility ${reservation.facility_id}`}</p></div>
+        <span className={`reservation-status status-${reservation.status}`}>{reservationStatusLabel(reservation)}</span>
+      </section>
+      <div className="reservation-detail-grid">
+        <section className="reservation-detail-panel" aria-labelledby="booking-title"><h2 id="booking-title"><FiCalendar aria-hidden="true" /> Booking details</h2><p className="reservation-timezone">All times in Asia/Jakarta</p>
+          <dl className="reservation-detail-data">{[['Facility', reservation.facility?.name || reservation.facility_id], ['Start time', formatReservationTime(reservation.start_time)], ['End time', formatReservationTime(reservation.end_time)]].map(([label, value]) => <div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}</dl>
+        </section>
+        <section className="reservation-detail-panel" aria-labelledby="requester-title"><h2 id="requester-title"><FiUser aria-hidden="true" /> Reserved by</h2><dl className="reservation-detail-data"><div><dt>Name</dt><dd>{reservation.user?.user_name || reservation.user?.email || reservation.user_id}</dd></div>{reservation.user?.email && <div><dt>Email address</dt><dd>{reservation.user.email}</dd></div>}<div><dt>Status</dt><dd><span className={`reservation-status status-${reservation.status}`}>{reservationStatusLabel(reservation)}</span></dd></div></dl></section>
+      </div>
+      <section className="reservation-detail-panel resolution-panel" aria-labelledby="decision-title">
+        <h2 id="decision-title"><FiFileText aria-hidden="true" /> {reservation.status === 'processed' ? 'Make a decision' : 'Resolution'}</h2>
+        {reservation.status === 'processed' ? <form className="resolution-form" noValidate onSubmit={finish} aria-busy={saving}><fieldset disabled={saving}>
+          <p className="reservation-notice"><FiInfo aria-hidden="true" /><span>This reservation stays processed when you go back. Enter a reason to approve or reject it. Approval marks it done and reserves the time slot; overlapping bookings cannot be approved.</span></p>
+          <label htmlFor="resolution-reason">Reason <span>(required)</span></label>
+          <textarea id="resolution-reason" className="textarea w-full" placeholder="Explain your decision so the requester knows what happens next." required maxLength={500} rows={5} value={reason} onChange={(event) => { setReason(event.target.value); setSaveError('') }} aria-invalid={Boolean(saveError)} aria-describedby={saveError ? 'resolution-hint resolution-error' : 'resolution-hint'} />
+          <p id="resolution-hint" className="resolution-hint">Use 1–500 characters. {reason.length}/500</p>
+          {saveError && <p id="resolution-error" role="alert" className="mt-2 text-error">{saveError}</p>}
+          <div className="resolution-actions"><button type="submit" value="done" className="btn auth-submit"><FiCheck aria-hidden="true" />{saving ? 'Saving…' : 'Approve reservation'}</button><button type="submit" value="rejected" className="btn resolution-reject"><FiX aria-hidden="true" />Reject reservation</button></div>
+        </fieldset></form> : <div><p className="reservation-notice"><FiInfo aria-hidden="true" /><span>{reservationStatusLabel(reservation) === 'Cancelled' ? 'This reservation was cancelled by the user.' : `This reservation has already been ${reservation.status === 'done' ? 'approved' : 'rejected'}.`}</span></p><h3 className="mt-6 font-semibold">Reason</h3><p className="reservation-detail-reason">{reservation.reason || 'No reason provided.'}</p></div>}
+      </section>
+    </>}
   </div>
 }

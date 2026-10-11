@@ -132,6 +132,15 @@
 .report-detail-photo { width: 100%; max-height: 480px; object-fit: contain; border: 1px solid #dfe8f2; border-radius: 14px; background: #f5f9fd; }
 .report-photo-link > span { display: flex; align-items: center; gap: 8px; margin-top: 14px; color: #174e89; font-size: 12px; font-weight: 600; }
 .report-photo-link:hover > span { text-decoration: underline; }
+.resolution-panel { margin-top: 24px; }
+.resolution-form label { display: block; margin: 24px 0 10px; font-size: 13px; font-weight: 600; }
+.resolution-form label span { color: #526880; font-weight: 400; }
+.resolution-form .textarea { padding: 14px; border-color: #dbe4ee; border-radius: 12px; background: #f8fafc; font-size: 14px; line-height: 1.7; resize: vertical; }
+.resolution-form .textarea:focus { outline: 2px solid #2588d3; outline-offset: 2px; }
+.resolution-hint { margin-top: 8px; color: #526880; font-size: 11px; }
+.resolution-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 24px; }
+.resolution-reject { min-height: 48px; border: 1px solid #edd7ce; border-radius: 10px; background: #fff; color: #934935; }
+.resolution-reject:hover { background: #fff0e9; border-color: #d6b3a5; }
 .reservation-page { color: #16365b; }
 .reservation-notice { display: flex; align-items: start; gap: 12px; margin-top: 24px; padding: 18px 22px; border: 1px solid #cfe3f3; border-radius: 14px; background: #edf7ff; color: #35618c; font-size: 12px; line-height: 1.8; }
 .reservation-notice > svg { flex-shrink: 0; margin-top: 3px; font-size: 18px; }
