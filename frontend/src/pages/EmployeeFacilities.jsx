@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { toast } from 'react-toastify'
+import { FiArrowLeft, FiArrowRight, FiGrid, FiInfo, FiMapPin, FiRefreshCw, FiUsers } from 'react-icons/fi'
 import { facilityImageUrl, readFacilities, updateFacility } from '../api/index.js'
 
 export default function EmployeeFacilities() {
@@ -54,44 +55,52 @@ export default function EmployeeFacilities() {
   }
 
   return (
-    <section className="mx-auto max-w-4xl" aria-labelledby="employee-facilities-title">
-      <Link to="/employee" className="link link-primary">Back to dashboard</Link>
-      <div className="mt-4 flex flex-wrap items-center justify-between gap-4">
+    <section className="facilities-page" aria-labelledby="employee-facilities-title">
+      <Link to="/employee" className="auth-back"><FiArrowLeft aria-hidden="true" /> Back to dashboard</Link>
+      <div className="facilities-heading">
         <div>
-          <h1 id="employee-facilities-title" className="text-3xl font-bold">Facility availability</h1>
-          <p className="mt-2">Toggle facilities active or inactive. Both remain in this list.</p>
+          <p className="auth-eyebrow">YOUR CAMPUS SPACES</p>
+          <h1 id="employee-facilities-title">Facility availability</h1>
+          <p className="facilities-intro">Keep campus spaces ready for what’s next. Review facilities and manage their availability.</p>
         </div>
-        <button type="button" className="btn" disabled={loading || savingId !== null} onClick={() => reload()}>Refresh</button>
+        <button type="button" className="btn auth-submit" disabled={loading || savingId !== null} onClick={() => reload()}><FiRefreshCw aria-hidden="true" /> Refresh</button>
       </div>
-      <div className="mt-4 rounded-box border border-base-300 bg-base-100 p-4" aria-busy={loading}>
-        {loading ? <p role="status">Loading facilities…</p> : error ? (
-          <div role="alert"><p>{error}</p><button type="button" className="btn btn-primary btn-sm mt-3" onClick={() => reload()}>Try again</button></div>
-        ) : facilities.length === 0 ? <p role="status">No facilities found.</p> : (
-          <div className="overflow-x-auto">
-            <table className="table w-full text-left">
-              <caption className="sr-only">Facility availability, page {page}</caption>
-              <thead><tr><th scope="col">Facility</th><th scope="col">Type</th><th scope="col">Location</th><th scope="col">Status</th><th scope="col">Active</th></tr></thead>
-              <tbody>{facilities.map((facility) => (
-                <tr key={facility.id}>
-                  <td><div className="flex items-center gap-3">{facility.images?.[0] && <img src={facilityImageUrl(facility.images[0].image_url)} alt={facility.name} className="h-16 w-24 rounded object-cover" />}<span>{facility.name}</span></div></td>
-                  <td>{facility.type?.name || facility.type_id}</td>
-                  <td>{facility.location?.name || facility.location_id}</td>
-                  <td><span className={`badge ${facility.is_active ? 'badge-success' : 'badge-error'}`}>{facility.is_active ? 'Active' : 'Inactive'}</span></td>
-                  <td>
-                    <input type="checkbox" role="switch" className="toggle toggle-success" checked={facility.is_active === true} disabled={savingId !== null} aria-label={`Activate ${facility.name}`} aria-describedby={saveError?.id === facility.id ? `facility-status-error-${facility.id}` : undefined} onChange={(event) => toggle(facility, event.target.checked)} />
-                    {savingId === facility.id && <p role="status" className="mt-2 text-sm">Saving…</p>}
-                    {saveError?.id === facility.id && <p id={`facility-status-error-${facility.id}`} role="alert" className="mt-2 text-sm text-error">{saveError.message}</p>}
-                  </td>
-                </tr>
-              ))}</tbody>
-            </table>
+      <p className="reservation-notice"><FiInfo aria-hidden="true" /><span>Use the availability switch to mark a facility active or inactive. Both remain in this list so you can update them at any time.</span></p>
+      <div className="facilities-results" aria-busy={loading}>
+        <div className="facilities-results-heading"><h2>Campus spaces</h2><p aria-live="polite">{loading ? 'Loading spaces…' : error ? 'Unable to load spaces' : `${facilities.length} ${facilities.length === 1 ? 'space' : 'spaces'} on this page`}</p></div>
+        {loading ? <div role="status" className="facilities-state"><span className="loading loading-spinner text-primary" aria-hidden="true" /><p>Loading facilities…</p></div> : error ? (
+          <div role="alert" className="facilities-state"><p>{error}</p><button type="button" className="btn btn-primary btn-sm mt-3" onClick={() => reload()}>Try again</button></div>
+        ) : facilities.length === 0 ? <div role="status" className="facilities-state"><FiGrid aria-hidden="true" className="text-3xl text-primary" /><h3>No facilities found.</h3><p>Campus spaces will appear here when they’re added.</p></div> : (
+          <div className="facilities-grid">
+            {facilities.map((facility) => (
+              <article key={facility.id} className="facility-card employee-facility-card">
+                <div className="facility-card-image">
+                  {facility.images?.[0] ? <img src={facilityImageUrl(facility.images[0].image_url)} alt={facility.name} loading="lazy" /> : <div className="facility-card-placeholder"><FiGrid aria-hidden="true" /><span>Space for your next idea</span><small>No photo available</small></div>}
+                  <span className={`facility-status ${facility.is_active ? 'is-active' : 'is-inactive'}`}>{facility.is_active ? 'Active' : 'Inactive'}</span>
+                </div>
+                <div className="facility-card-body">
+                  <p className="auth-eyebrow">{facility.type?.name || `Type ${facility.type_id}`}</p>
+                  <h3>{facility.name}</h3>
+                  <dl className="facility-card-meta">
+                    <div><dt><FiMapPin aria-hidden="true" /><span className="sr-only">Location</span></dt><dd>{facility.location?.name || `Location ${facility.location_id}`}</dd></div>
+                    <div><dt><FiUsers aria-hidden="true" /><span className="sr-only">Capacity</span></dt><dd>{facility.capacity} people</dd></div>
+                  </dl>
+                  <div className="employee-availability-control">
+                    <label htmlFor={`facility-active-${facility.id}`}><span>Facility active</span><small>{facility.is_active ? 'Marked as available' : 'Marked as unavailable'}</small></label>
+                    <input id={`facility-active-${facility.id}`} type="checkbox" role="switch" className="toggle toggle-primary" checked={facility.is_active === true} disabled={savingId !== null} aria-label={`Activate ${facility.name}`} aria-describedby={saveError?.id === facility.id ? `facility-status-error-${facility.id}` : undefined} onChange={(event) => toggle(facility, event.target.checked)} />
+                  </div>
+                  {savingId === facility.id && <p role="status" className="employee-availability-feedback"><span className="loading loading-spinner loading-xs" aria-hidden="true" /> Saving…</p>}
+                  {saveError?.id === facility.id && <p id={`facility-status-error-${facility.id}`} role="alert" className="mt-3 text-sm text-error">{saveError.message}</p>}
+                </div>
+              </article>
+            ))}
           </div>
         )}
       </div>
-      <nav className="mt-4 flex items-center justify-center gap-3" aria-label="Facility availability pagination">
-        <button type="button" className="btn btn-sm" disabled={loading || savingId !== null || page === 1} onClick={() => reload(page - 1)}>Previous</button>
+      <nav className="facilities-pagination" aria-label="Facility availability pagination">
+        <button type="button" className="btn btn-sm" disabled={loading || savingId !== null || page === 1} onClick={() => reload(page - 1)}><FiArrowLeft aria-hidden="true" /> Previous</button>
         <span aria-live="polite">Page {page}</span>
-        <button type="button" className="btn btn-sm" disabled={loading || savingId !== null || Boolean(error) || !hasNext} onClick={() => reload(page + 1)}>Next</button>
+        <button type="button" className="btn btn-sm" disabled={loading || savingId !== null || Boolean(error) || !hasNext} onClick={() => reload(page + 1)}>Next <FiArrowRight aria-hidden="true" /></button>
       </nav>
     </section>
   )

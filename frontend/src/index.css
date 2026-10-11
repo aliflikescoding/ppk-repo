@@ -186,6 +186,14 @@
 .dashboard-account-details dt { display: flex; align-items: center; gap: 7px; margin-bottom: 8px; color: #526880; font-size: 12px; }
 .dashboard-account-details dd { font-size: 14px; font-weight: 600; overflow-wrap: anywhere; }
 .dashboard-role { display: inline-block; padding: 4px 10px; border-radius: 100px; background: #e1f0fc; color: #174e89; font-size: 11px; }
+.employee-facility-card { display: flex; flex-direction: column; }
+.employee-facility-card .facility-card-body { display: flex; flex-direction: column; flex: 1; }
+.employee-facility-card .facility-card-meta { margin-bottom: 24px; }
+.employee-availability-control { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: auto; padding-top: 20px; border-top: 1px solid #e8edf3; }
+.employee-availability-control label { font-size: 13px; font-weight: 600; cursor: pointer; }
+.employee-availability-control small { display: block; margin-top: 5px; color: #526880; font-size: 11px; font-weight: 400; }
+.employee-availability-control input { flex-shrink: 0; }
+.employee-availability-feedback { display: flex; align-items: center; gap: 8px; margin-top: 14px; font-size: 12px; color: #35618c; }
 .facilities-page { color: #16365b; }
 .facilities-heading { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 24px; padding: 36px; border: 1px solid #dfe8f2; border-radius: 24px; background: linear-gradient(120deg, #edf7ff, #fff); }
 .facilities-heading h1 { margin: 12px 0; font-size: clamp(32px, 4vw, 44px); font-weight: 800; letter-spacing: -.04em; line-height: 1.15; }
