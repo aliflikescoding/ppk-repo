@@ -34,7 +34,7 @@ export default function ReservationForm({ reservation, facility, userSubmission 
   }
   const fieldError = (name) => errors[name] && <p id={`${name}-error`} role="alert" className="text-sm text-error">{errors[name].message}</p>
   const accessibility = (name) => ({ 'aria-invalid': Boolean(errors[name]), 'aria-describedby': errors[name] ? `${name}-error` : undefined })
-  return <form className="mt-4" noValidate onSubmit={handleSubmit(submit)} aria-busy={isSubmitting}>
+  return <form className="workspace-form mt-6" noValidate onSubmit={handleSubmit(submit)} aria-busy={isSubmitting}>
     <fieldset disabled={isSubmitting} className="space-y-4">
       {error ? <div role="alert"><p className="text-error">{error}</p><button type="button" className="btn btn-sm mt-2" onClick={() => { setError(''); setAttempt((value) => value + 1) }}>Try again</button></div> : !options && <p role="status">Loading reservation options…</p>}
       <div><label htmlFor="facility_id" className="mb-1 block font-medium">Facility</label>{facility ? <><input type="hidden" {...register('facility_id')} /><p className="rounded-box bg-base-200 p-3">{facility.name}</p></> : <select id="facility_id" className="select w-full" {...register('facility_id')} {...accessibility('facility_id')} disabled={!options || Boolean(facility)}><option value="">Select a facility</option>{options?.facilities.map((facility) => <option key={facility.id} value={facility.id}>{facility.name}{facility.is_active ? '' : ' (inactive)'}</option>)}</select>}{fieldError('facility_id')}{options && !options.facilities.length && <p role="status">Create a facility before saving a reservation.</p>}</div>
@@ -46,7 +46,7 @@ export default function ReservationForm({ reservation, facility, userSubmission 
       <div><label htmlFor="reason" className="mb-1 block font-medium">Reason (optional)</label><textarea id="reason" maxLength={500} className="textarea w-full" {...register('reason')} {...accessibility('reason')} />{fieldError('reason')}<p className="text-sm">Clear this field to remove an existing reason.</p></div>
       </>}
       {errors.root?.server && <p role="alert" className="text-error">{errors.root.server.message}</p>}
-      <button type="submit" className="btn btn-primary w-full" disabled={!options?.facilities.length || Boolean(error) || (userSubmission && facility && !facility.is_active)}>{isSubmitting ? 'Saving…' : reservation ? 'Save changes' : userSubmission ? 'Submit reservation request' : 'Create reservation'}</button>
+      <button type="submit" className="btn auth-submit w-full" disabled={!options?.facilities.length || Boolean(error) || (userSubmission && facility && !facility.is_active)}>{isSubmitting ? 'Saving…' : reservation ? 'Save changes' : userSubmission ? 'Submit reservation request' : 'Create reservation'}</button>
     </fieldset>
   </form>
 }

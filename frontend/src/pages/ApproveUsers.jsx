@@ -1,3 +1,4 @@
+import PageHeading from '../components/PageHeading.jsx'
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { toast } from 'react-toastify'
@@ -62,21 +63,21 @@ export default function ApproveUsers() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-4xl">
-      <Link to="/admin" className="link link-primary">Back to dashboard</Link>
-      <div className="mt-4 flex flex-wrap items-center justify-between gap-4">
+    <div className="workspace-page workspace-list-page">
+      <Link to="/admin" className="auth-back">← Back to dashboard</Link>
+      <div className="workspace-toolbar">
         <div>
-          <h1 className="text-3xl font-bold">Approve users</h1>
+          <PageHeading>Approve users</PageHeading>
           <p className="mt-2">Activate inactive accounts so they can sign in.</p>
         </div>
         <button type="button" className="btn" disabled={loading || approvingId !== null} onClick={refresh}>Refresh</button>
       </div>
 
-      <section className="mt-6 rounded-box border border-base-300 bg-base-100 p-4" aria-label="Users awaiting approval" aria-busy={loading}>
+      <section className="workspace-panel mt-6" aria-label="Users awaiting approval" aria-busy={loading}>
         {loading ? <p role="status">Loading pending users…</p> : error ? (
           <div role="alert">
             <p>{error}</p>
-            <button type="button" className="btn btn-primary btn-sm mt-3" onClick={refresh}>Try again</button>
+            <button type="button" className="btn auth-submit btn-sm mt-3" onClick={refresh}>Try again</button>
           </div>
         ) : users.length === 0 ? <p role="status">No users awaiting approval.</p> : (
           <div className="overflow-x-auto">
@@ -99,7 +100,7 @@ export default function ApproveUsers() {
                     <td>{roles[user.role]?.label || user.role}</td>
                     <td><span className="badge badge-warning">Inactive</span></td>
                     <td className="text-right">
-                      <button type="button" className="btn btn-success btn-sm" disabled={approvingId !== null}
+                      <button type="button" className="btn workspace-success btn-sm" disabled={approvingId !== null}
                         onClick={() => approve(user)} aria-label={`Approve ${user.user_name}`}>
                         {approvingId === user.id ? 'Approving…' : 'Approve'}
                       </button>

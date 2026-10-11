@@ -1,3 +1,4 @@
+import PageHeading from '../components/PageHeading.jsx'
 import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { toast } from 'react-toastify'
@@ -26,7 +27,7 @@ function UpdateFacilityPage({ id }) {
     toast.success('Facility updated successfully.')
     navigate('/admin/facilities')
   }
-  return <div className="mx-auto max-w-lg"><Link to="/admin/facilities" className="link link-primary">Back to facilities</Link>
-    {error ? <div role="alert" className="mt-4"><p>{error}</p><button className="btn mt-3" onClick={() => { setError(''); setAttempt((value) => value + 1) }}>Try again</button></div> : !facility ? <p role="status" className="mt-4">Loading facility…</p> : <section className="card mt-4 border border-base-300 bg-base-100 shadow-sm"><div className="card-body"><h1 className="text-3xl font-bold">Update facility</h1><FacilityForm facility={facility} onSave={save} /></div></section>}
+  return <div className="workspace-page workspace-form-page"><Link to="/admin/facilities" className="auth-back">← Back to facilities</Link>
+    {error ? <div role="alert" className="mt-4"><p>{error}</p><button className="btn mt-3" onClick={() => { setError(''); setAttempt((value) => value + 1) }}>Try again</button></div> : !facility ? <p role="status" className="mt-4">Loading facility…</p> : <section className="workspace-panel mt-4"><div className="workspace-panel-body"><PageHeading>Update facility</PageHeading><FacilityForm facility={facility} onSave={save} /></div></section>}
   </div>
 }

@@ -1,3 +1,4 @@
+import PageHeading from '../components/PageHeading.jsx'
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { toast } from 'react-toastify'
@@ -76,13 +77,13 @@ export default function Users() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-4xl">
-      <Link to="/admin" className="link link-primary">
-        Back to dashboard
+    <div className="workspace-page workspace-list-page">
+      <Link to="/admin" className="auth-back">
+        ← Back to dashboard
       </Link>
-      <div className="mt-4 flex flex-wrap items-center justify-between gap-4">
+      <div className="workspace-toolbar">
         <div>
-          <h1 className="text-3xl font-bold">Users</h1>
+          <PageHeading>Users</PageHeading>
           <p className="mt-2">View registered users and their roles.</p>
         </div>
         <div>
@@ -93,7 +94,7 @@ export default function Users() {
       </div>
 
       <section
-        className="mt-6 rounded-box border border-base-300 bg-base-100 p-4"
+        className="workspace-panel mt-6"
         aria-label="Users list"
         aria-busy={loading}
       >
@@ -105,7 +106,7 @@ export default function Users() {
             <button
               type="button"
               onClick={retry}
-              className="btn btn-primary btn-sm mt-3"
+              className="btn auth-submit btn-sm mt-3"
             >
               Try again
             </button>
@@ -159,7 +160,7 @@ export default function Users() {
       </section>
 
       <nav
-        className="mt-4 flex items-center justify-center gap-3"
+        className="facilities-pagination"
         aria-label="Users pagination"
       >
         <button
@@ -182,7 +183,7 @@ export default function Users() {
       </nav>
       <dialog ref={deleteDialog} className="modal" aria-labelledby="delete-title" aria-describedby="delete-description"
         onCancel={(event) => { if (deleting) event.preventDefault() }}>
-        <div className="modal-box">
+        <div className="modal-box reservation-modal">
           <h2 id="delete-title" className="text-xl font-bold">Delete user</h2>
           <p id="delete-description" className="mt-3">
             Delete {selectedUser?.user_name} ({selectedUser?.email})? This cannot be undone.

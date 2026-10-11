@@ -1,3 +1,4 @@
+import PageHeading from './PageHeading.jsx'
 import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { toast } from 'react-toastify'
@@ -37,10 +38,10 @@ function Submission({ id, kind }) {
   }
 
   if (loading || sessionError) return <SessionStatus />
-  return <div className="mx-auto max-w-2xl">
-    <Link to={`/facilities/${id}`} className="link link-primary">Back to facility</Link>
-    <section className="card mt-4 border border-base-300 bg-base-100 shadow-sm"><div className="card-body">
-      <h1 className="text-3xl font-bold">{report ? 'Submit a report' : 'Submit a reservation'}</h1>
+  return <div className="workspace-page workspace-form-page">
+    <Link to={`/facilities/${id}`} className="auth-back">← Back to facility</Link>
+    <section className="workspace-panel mt-4"><div className="workspace-panel-body">
+      <PageHeading eyebrow="YOUR NEXT CAMPUS STEP">{report ? 'Submit a report' : 'Submit a reservation'}</PageHeading>
       {!user ? <p className="mt-3">Please <Link to="/login" state={{ returnTo: `/facilities/${id}/${report ? 'report' : 'reserve'}` }} className="link link-primary">sign in</Link> to submit {report ? 'a report' : 'a reservation request'}.</p> : !report && user.role === 'employee' ? <p role="alert">Employees cannot submit reservation requests. Sign in with a user account to reserve a facility.</p> : error ? <div role="alert"><p>{error}</p><button type="button" className="btn mt-3" onClick={() => { setError(''); setAttempt((value) => value + 1) }}>Try again</button></div> : !facility ? <p role="status">Loading facility…</p> : <>
         <p className="mt-2 font-semibold">{facility.name}</p>
         <p className="text-sm">{report ? 'Describe the issue and attach a photo. Your report will start with status new.' : 'Choose a time for your reservation request. It starts with status new and needs approval before the slot is confirmed.'}</p>

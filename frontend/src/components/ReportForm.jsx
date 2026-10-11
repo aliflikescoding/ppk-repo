@@ -49,7 +49,7 @@ export default function ReportForm({ report, facility, onSave }) {
     catch (error) { setError('root.server', { message: error.response?.data?.message || error.message || 'Unable to save report. Please try again.' }) }
   }
 
-  return <form className="mt-4" noValidate onSubmit={handleSubmit(submit)} aria-busy={isSubmitting}>
+  return <form className="workspace-form mt-6" noValidate onSubmit={handleSubmit(submit)} aria-busy={isSubmitting}>
     <fieldset disabled={isSubmitting} className="space-y-4">
       {referenceError ? <div role="alert"><p className="text-error">{referenceError}</p><button type="button" className="btn btn-sm mt-2" onClick={() => { setReferenceError(''); setAttempt((value) => value + 1) }}>Try again</button></div> : !references && <p role="status">Loading report options…</p>}
       {[['facility_id', 'Facility', 'facilities'], ['category_id', 'Category', 'categories']].map(([name, label, kind]) => <div key={name}>
@@ -80,7 +80,7 @@ export default function ReportForm({ report, facility, onSave }) {
       {mode === 'urls' && <div><label htmlFor="photo-url" className="mb-1 block font-medium">Image URL</label><input id="photo-url" type="url" maxLength={2000} className="input w-full" value={url} onChange={(event) => setUrl(event.target.value)} aria-invalid={Boolean(photoError)} aria-describedby="photo-error" /></div>}
       <p id="photo-error" role={photoError ? 'alert' : undefined} className="text-sm text-error">{photoError}</p>
       {errors.root?.server && <p role="alert" className="text-error">{errors.root.server.message}</p>}
-      <button type="submit" className="btn btn-primary w-full" disabled={!references?.facilities.length || !references?.categories.length}>{isSubmitting ? 'Saving…' : report ? 'Save changes' : facility ? 'Submit report' : 'Create report'}</button>
+      <button type="submit" className="btn auth-submit w-full" disabled={!references?.facilities.length || !references?.categories.length}>{isSubmitting ? 'Saving…' : report ? 'Save changes' : facility ? 'Submit report' : 'Create report'}</button>
     </fieldset>
   </form>
 }

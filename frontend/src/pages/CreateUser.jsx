@@ -1,3 +1,4 @@
+import PageHeading from '../components/PageHeading.jsx'
 import { Link, useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -33,11 +34,11 @@ export default function CreateUser() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-lg">
-      <Link to="/admin/users" className="link link-primary">Back to users</Link>
-      <section className="card mt-4 border border-base-300 bg-base-100 shadow-sm">
-        <div className="card-body">
-          <h1 className="text-3xl font-bold">Create user</h1>
+    <div className="workspace-page workspace-form-page">
+      <Link to="/admin/users" className="auth-back">← Back to users</Link>
+      <section className="workspace-panel mt-4">
+        <div className="workspace-panel-body">
+          <PageHeading>Create user</PageHeading>
           <p>Add a new account and choose its role.</p>
           <form className="mt-4" noValidate onSubmit={handleSubmit(onSubmit)} aria-busy={isSubmitting}>
             <fieldset disabled={isSubmitting} className="space-y-4">
@@ -69,7 +70,7 @@ export default function CreateUser() {
                 {errors.role && <p id="role-error" role="alert" className="mt-1 text-sm text-error">{errors.role.message}</p>}
               </div>
               {errors.root?.server && <p role="alert" className="text-error">{errors.root.server.message}</p>}
-              <button type="submit" className="btn btn-primary w-full">{isSubmitting ? 'Creating user…' : 'Create user'}</button>
+              <button type="submit" className="btn auth-submit w-full">{isSubmitting ? 'Creating user…' : 'Create user'}</button>
             </fieldset>
           </form>
         </div>

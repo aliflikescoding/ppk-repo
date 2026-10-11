@@ -2,11 +2,11 @@ import { useAuth } from './auth.js'
 
 export default function SessionStatus() {
   const { loading, error, retry } = useAuth()
-  if (loading) return <p role="status">Checking your session…</p>
+  if (loading) return <div role="status" className="facilities-state"><span className="loading loading-spinner text-primary" aria-hidden="true" /><p>Checking your session…</p></div>
   if (error) return (
-    <div className="space-y-4">
+    <div className="facilities-state">
       <p role="alert">{error}</p>
-      <button type="button" className="btn btn-primary" onClick={retry}>Try again</button>
+      <button type="button" className="btn auth-submit" onClick={retry}>Try again</button>
     </div>
   )
   return null

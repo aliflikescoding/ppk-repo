@@ -1,3 +1,4 @@
+import PageHeading from '../components/PageHeading.jsx'
 import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
@@ -63,8 +64,8 @@ function UpdateUserForm({ id }) {
   }
 
   if (loading || loadError) return (
-    <div className="mx-auto w-full max-w-lg">
-      <Link to="/admin/users" className="link link-primary">Back to users</Link>
+    <div className="workspace-page workspace-form-page">
+      <Link to="/admin/users" className="auth-back">← Back to users</Link>
       {loading ? <p className="mt-4" role="status">Loading user…</p> : (
         <div className="mt-4" role="alert">
           <p>{loadError}</p>
@@ -79,11 +80,11 @@ function UpdateUserForm({ id }) {
   )
 
   return (
-    <div className="mx-auto w-full max-w-lg">
-      <Link to="/admin/users" className="link link-primary">Back to users</Link>
-      <section className="card mt-4 border border-base-300 bg-base-100 shadow-sm">
-        <div className="card-body">
-          <h1 className="text-3xl font-bold">Update user</h1>
+    <div className="workspace-page workspace-form-page">
+      <Link to="/admin/users" className="auth-back">← Back to users</Link>
+      <section className="workspace-panel mt-4">
+        <div className="workspace-panel-body">
+          <PageHeading>Update user</PageHeading>
           <p>Edit the account details below.</p>
           <form className="mt-4" noValidate onSubmit={handleSubmit(onSubmit)} aria-busy={isSubmitting}>
             <fieldset disabled={isSubmitting} className="space-y-4">
@@ -115,7 +116,7 @@ function UpdateUserForm({ id }) {
                 {errors.role && <p id="role-error" role="alert" className="mt-1 text-sm text-error">{errors.role.message}</p>}
               </div>
               {errors.root?.server && <p role="alert" className="text-error">{errors.root.server.message}</p>}
-              <button type="submit" className="btn btn-primary w-full">{isSubmitting ? 'Saving changes…' : 'Save changes'}</button>
+              <button type="submit" className="btn auth-submit w-full">{isSubmitting ? 'Saving changes…' : 'Save changes'}</button>
             </fieldset>
           </form>
         </div>

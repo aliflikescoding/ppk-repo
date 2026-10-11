@@ -68,7 +68,7 @@ export default function FacilityForm({ facility, onSave }) {
     catch (error) { setError('root.server', { message: error.response?.data?.message || 'Unable to save facility. Please try again.' }) }
   }
 
-  return <form className="mt-4" noValidate onSubmit={handleSubmit(submit)} aria-busy={isSubmitting}>
+  return <form className="workspace-form mt-6" noValidate onSubmit={handleSubmit(submit)} aria-busy={isSubmitting}>
     <fieldset disabled={isSubmitting} className="space-y-4">
       {[['name', 'Name'], ['capacity', 'Capacity']].map(([field, label]) => <div key={field}>
         <label htmlFor={field} className="mb-1 block font-medium">{label}</label>
@@ -115,7 +115,7 @@ export default function FacilityForm({ facility, onSave }) {
       {mode === 'remove' && <p>All current images will be removed when you save.</p>}
       <p id="image-error" role={imageError ? 'alert' : undefined} className="text-sm text-error">{imageError}</p>
       {errors.root?.server && <p role="alert" className="text-error">{errors.root.server.message}</p>}
-      <button type="submit" className="btn btn-primary w-full" disabled={!references?.types.length || !references?.locations.length}>{isSubmitting ? 'Saving…' : facility ? 'Save changes' : 'Create facility'}</button>
+      <button type="submit" className="btn auth-submit w-full" disabled={!references?.types.length || !references?.locations.length}>{isSubmitting ? 'Saving…' : facility ? 'Save changes' : 'Create facility'}</button>
     </fieldset>
   </form>
 }

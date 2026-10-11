@@ -1,3 +1,4 @@
+import PageHeading from '../components/PageHeading.jsx'
 import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { toast } from 'react-toastify'
@@ -26,7 +27,7 @@ function UpdateReservationPage({ id }) {
     toast.success('Reservation updated successfully.')
     navigate('/admin/reservations')
   }
-  return <div className="mx-auto max-w-lg"><Link to="/admin/reservations" className="link link-primary">Back to reservations</Link>
-    {error ? <div role="alert" className="mt-4"><p>{error}</p><button className="btn mt-3" onClick={() => { setError(''); setAttempt((value) => value + 1) }}>Try again</button></div> : !reservation ? <p role="status" className="mt-4">Loading reservation…</p> : <section className="card mt-4 border border-base-300 bg-base-100 shadow-sm"><div className="card-body"><h1 className="text-3xl font-bold">Update reservation</h1><ReservationForm reservation={reservation} onSave={save} /></div></section>}
+  return <div className="workspace-page workspace-form-page"><Link to="/admin/reservations" className="auth-back">← Back to reservations</Link>
+    {error ? <div role="alert" className="mt-4"><p>{error}</p><button className="btn mt-3" onClick={() => { setError(''); setAttempt((value) => value + 1) }}>Try again</button></div> : !reservation ? <p role="status" className="mt-4">Loading reservation…</p> : <section className="workspace-panel mt-4"><div className="workspace-panel-body"><PageHeading>Update reservation</PageHeading><ReservationForm reservation={reservation} onSave={save} /></div></section>}
   </div>
 }

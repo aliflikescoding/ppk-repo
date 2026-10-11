@@ -1,3 +1,4 @@
+import PageHeading from '../components/PageHeading.jsx'
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { readAllFacilityReferences, readAllReportCategories, readRecapData } from '../api/index.js'
@@ -60,25 +61,25 @@ export default function FacilityRecap() {
     catch { setExportError('Ekspor gagal. Silakan coba lagi.') }
     finally { setExporting(false) }
   }
-  return <div>
-    <Link to="/admin" className="link link-primary">Kembali ke dashboard</Link>
-    <h1 className="mt-4 text-3xl font-bold">Rekap okupansi dan kerusakan</h1>
+  return <div className="workspace-page workspace-list-page">
+    <Link to="/admin" className="auth-back">← Kembali ke dashboard</Link>
+    <PageHeading>Rekap okupansi dan kerusakan</PageHeading>
     <p className="mt-2">Bandingkan penggunaan dan laporan kerusakan per fasilitas atau lokasi, lalu ekspor hasilnya.</p>
-    <form onSubmit={apply} className="mt-6 rounded-box border border-base-300 bg-base-100 p-4">
+    <form onSubmit={apply} className="workspace-panel mt-6">
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {[['from', 'Tanggal mulai okupansi'], ['to', 'Tanggal akhir okupansi']].map(([name, label]) => <div key={name}><label htmlFor={`recap-${name}`} className="mb-1 block">{label}</label><input id={`recap-${name}`} type="date" required className="input w-full" value={draft[name]} onChange={(event) => update(name, event.target.value)} /></div>)}
         {[['location_id', 'Lokasi', options?.locations], ['facility_id', 'Fasilitas', options?.facilities.filter((item) => !draft.location_id || String(item.location_id) === draft.location_id)], ['category_id', 'Kategori laporan kerusakan', options?.categories]].map(([name, label, items]) => <div key={name}><label htmlFor={`recap-${name}`} className="mb-1 block">{label}</label><select id={`recap-${name}`} className="select w-full" disabled={!options} value={draft[name]} onChange={(event) => update(name, event.target.value)}><option value="">Semua</option>{items?.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select></div>)}
       </div>
       <p className="mt-3 text-sm">Maksimal 366 hari. Frekuensi laporan dihitung sepanjang waktu karena tanggal laporan belum tersedia.</p>
       {validationError && <p role="alert" className="mt-2 text-error">{validationError}</p>}
-      <button type="submit" className="btn btn-primary mt-4" disabled={Boolean(exporting)}>Tampilkan rekap</button>
+      <button type="submit" className="btn auth-submit mt-4" disabled={Boolean(exporting)}>Tampilkan rekap</button>
     </form>
     <section className="mt-6" aria-busy={loading} aria-label="Hasil rekap">
       {loading ? <p role="status">Memuat seluruh halaman data rekap…</p> : error ? <div role="alert"><p>{error}</p><button type="button" className="btn mt-3" onClick={() => setAttempt((value) => value + 1)}>Coba lagi</button></div> : <>
         <button type="button" className="btn" disabled={exporting || !recap.facilities.length} onClick={download}>{exporting ? 'Mengekspor…' : 'Ekspor PDF'}</button>
         {exportError && <p role="alert" className="mt-3 text-error">{exportError}</p>}
         <details className="mt-4 rounded-box bg-base-100 p-4"><summary className="cursor-pointer font-semibold">Periode dan cara perhitungan</summary><ul className="mt-3 list-disc space-y-2 pl-5 text-sm">{notes.map((note) => <li key={note}>{note}</li>)}</ul></details>
-        {!recap.facilities.length ? <p role="status" className="mt-4">Tidak ada fasilitas untuk filter ini.</p> : ['facilities', 'locations'].map((group) => <section key={group} className="mt-6 rounded-box border border-base-300 bg-base-100 p-4"><h2 className="mb-3 text-xl font-semibold">{group === 'facilities' ? 'Per fasilitas' : 'Per lokasi'}</h2><div className="overflow-x-auto"><table className="table"><caption className="sr-only">{group === 'facilities' ? 'Rekap per fasilitas' : 'Rekap per lokasi'}</caption><thead><tr>{recapHeaders(group).map((header) => <th key={header} scope="col">{header}</th>)}</tr></thead><tbody>{recap[group].map((row, index) => <tr key={row.id || index}>{recapValues(row, group).map((value, column) => <td key={column}>{value}</td>)}</tr>)}</tbody></table></div></section>)}
+        {!recap.facilities.length ? <p role="status" className="mt-4">Tidak ada fasilitas untuk filter ini.</p> : ['facilities', 'locations'].map((group) => <section key={group} className="workspace-panel mt-6"><h2 className="mb-3 text-xl font-semibold">{group === 'facilities' ? 'Per fasilitas' : 'Per lokasi'}</h2><div className="overflow-x-auto"><table className="table"><caption className="sr-only">{group === 'facilities' ? 'Rekap per fasilitas' : 'Rekap per lokasi'}</caption><thead><tr>{recapHeaders(group).map((header) => <th key={header} scope="col">{header}</th>)}</tr></thead><tbody>{recap[group].map((row, index) => <tr key={row.id || index}>{recapValues(row, group).map((value, column) => <td key={column}>{value}</td>)}</tr>)}</tbody></table></div></section>)}
       </>}
     </section>
   </div>
