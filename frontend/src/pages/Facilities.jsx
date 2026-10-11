@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { toast } from 'react-toastify'
+import { FiArrowLeft, FiArrowRight, FiGrid, FiMapPin, FiSearch, FiSliders, FiUsers } from 'react-icons/fi'
 import { deleteFacility, readFacilities, readAllFacilityReferences, facilityImageUrl } from '../api/index.js'
 
 const pageSize = 20
@@ -117,23 +118,25 @@ export default function Facilities({ manage = false }) {
   }
 
   return (
-    <div className="mx-auto w-full max-w-4xl">
-      {manage && <Link to="/admin" className="link link-primary">Back to dashboard</Link>}
-      <div className="mt-4 flex flex-wrap items-center justify-between gap-4">
+    <div className="facilities-page">
+      {manage && <Link to="/admin" className="auth-back"><FiArrowLeft aria-hidden="true" /> Back to dashboard</Link>}
+      <div className="facilities-heading">
         <div>
-          <h1 className="text-3xl font-bold">Facilities</h1>
-          <p className="mt-2">Explore facilities, capacity, and locations.</p>
+          <p className="auth-eyebrow">ROOM FOR YOUR NEXT PLAN</p>
+          <h1>{manage ? 'Manage campus spaces.' : 'Find your next space.'}</h1>
+          <p className="facilities-intro">Explore campus facilities, find the right fit, and make room for what’s next.</p>
         </div>
         {manage && <div className="flex flex-wrap gap-2">
           <Link to="/admin/facility-types" className="btn">Manage types</Link>
           <Link to="/admin/facility-locations" className="btn">Manage locations</Link>
-          <Link to="/admin/createFacility" className="btn">
+          <Link to="/admin/createFacility" className="btn auth-submit">
             Create Facility
           </Link>
         </div>}
       </div>
 
-      <form className="mt-6 rounded-box border border-base-300 bg-base-100 p-4" onSubmit={applyFilters} noValidate aria-label="Facility filters">
+      <form className="facilities-filters" onSubmit={applyFilters} noValidate aria-label="Facility filters">
+        <div className="facilities-filter-heading"><span><FiSliders aria-hidden="true" /> Find your fit</span><p>Narrow it down to the space you need.</p></div>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <div><label htmlFor="facility-search" className="mb-1 block font-medium">Search facilities</label><input id="facility-search" type="search" maxLength={100} className="input w-full" placeholder="Facility, type, or location name" value={draftFilters.search} onChange={(event) => updateFilter('search', event.target.value)} /></div>
           {[['location_id', 'Location', 'locations'], ['type_id', 'Type', 'types']].map(([key, label, kind]) => <div key={key}><label htmlFor={`facility-${key}`} className="mb-1 block font-medium">{label}</label><select id={`facility-${key}`} className="select w-full" value={draftFilters[key]} disabled={!references} onChange={(event) => updateFilter(key, event.target.value)}><option value="">All {kind}</option>{references?.[kind].map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select></div>)}
@@ -142,18 +145,19 @@ export default function Facilities({ manage = false }) {
         </div>
         {referenceError ? <div role="alert" className="mt-3"><p className="text-error">{referenceError}</p><button type="button" className="btn btn-sm mt-2" onClick={() => { setReferenceError(''); setReferenceAttempt((value) => value + 1) }}>Retry loading filters</button></div> : !references && <p role="status" className="mt-3">Loading locations and types…</p>}
         {filterError && <p id="facility-filter-error" role="alert" className="mt-3 text-error">{filterError}</p>}
-        <div className="mt-4 flex gap-2"><button type="submit" className="btn btn-primary">Apply filters</button><button type="button" className="btn" onClick={resetFilters}>Reset filters</button></div>
+        <div className="mt-4 flex gap-2"><button type="submit" className="btn auth-submit"><FiSearch aria-hidden="true" /> Apply filters</button><button type="button" className="btn" onClick={resetFilters}>Reset filters</button></div>
       </form>
 
       <section
-        className="mt-6 rounded-box border border-base-300 bg-base-100 p-4"
+        className="facilities-results"
         aria-label="Facilities list"
         aria-busy={loading}
       >
+        <div className="facilities-results-heading"><h2>Campus spaces</h2><p aria-live="polite">{loading ? 'Finding your spaces…' : error ? 'Unable to load spaces' : `${facilities.length} ${facilities.length === 1 ? 'space' : 'spaces'} on this page`}</p></div>
         {loading ? (
-          <p role="status">Loading facilities…</p>
+          <div className="facilities-state" role="status"><span className="loading loading-spinner text-primary" aria-hidden="true" /><p>Loading facilities…</p></div>
         ) : error ? (
-          <div role="alert">
+          <div role="alert" className="facilities-state">
             <p>{error}</p>
             <button
               type="button"
@@ -164,24 +168,29 @@ export default function Facilities({ manage = false }) {
             </button>
           </div>
         ) : facilities.length === 0 ? (
-          <p role="status">
-            {page === 1 ? "No facilities found." : "No more facilities on this page."}
-          </p>
+          <div className="facilities-state" role="status">
+            <FiSearch aria-hidden="true" className="text-3xl text-primary" />
+            <h3>{page === 1 ? 'No spaces found.' : 'You’ve reached the end.'}</h3>
+            <p>{page === 1 ? 'Try another search or adjust your filters to explore more facilities.' : 'Go back a page to keep exploring.'}</p>
+            {page === 1 && Object.keys(filters).length > 0 && <button type="button" className="btn auth-submit" onClick={resetFilters}>Clear filters</button>}
+          </div>
         ) : (
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="facilities-grid">
             {facilities.map((facility) => (
-              <article key={facility.id} className="card relative overflow-hidden border border-base-300 bg-base-100 shadow-sm transition-shadow hover:shadow-md">
-                {facility.images?.[0] ? <figure><img src={facilityImageUrl(facility.images[0].image_url)} alt={facility.name} loading="lazy" className="h-48 w-full object-cover" /></figure> : <div className="flex h-48 items-center justify-center bg-base-200 text-base-content/60">No photo available</div>}
-                <div className="card-body">
-                  <div className="flex items-start justify-between gap-3">
-                    <h2 className="card-title break-words"><Link to={`${manage ? '/admin' : ''}/facilities/${facility.id}`} className="after:absolute after:inset-0 focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary" aria-label={`View ${facility.name} details`}>{facility.name}</Link></h2>
-                    <span className={`badge shrink-0 ${facility.is_active ? 'badge-success' : 'badge-error'}`}>{facility.is_active ? 'Active' : 'Inactive'}</span>
-                  </div>
-                  <dl className="mt-2 space-y-2">
-                    {[['Capacity', `${facility.capacity} people`], ['Type', facility.type?.name || facility.type_id], ['Location', facility.location?.name || facility.location_id]].map(([label, value]) => <div key={label}><dt className="text-sm text-base-content/60">{label}</dt><dd className="break-words font-medium">{value}</dd></div>)}
+              <article key={facility.id} className="facility-card">
+                <div className="facility-card-image">
+                  {facility.images?.[0] ? <img src={facilityImageUrl(facility.images[0].image_url)} alt={facility.name} loading="lazy" /> : <div className="facility-card-placeholder"><FiGrid aria-hidden="true" /><span>Space for your next idea</span><small>No photo available</small></div>}
+                  <span className={`facility-status ${facility.is_active ? 'is-active' : 'is-inactive'}`}>{facility.is_active ? 'Active' : 'Inactive'}</span>
+                </div>
+                <div className="facility-card-body">
+                  <p className="auth-eyebrow">{facility.type?.name || `Type ${facility.type_id}`}</p>
+                  <h3><Link to={`${manage ? '/admin' : ''}/facilities/${facility.id}`} className="facility-title-link" aria-label={`View ${facility.name} details`}><span className="facility-animated-text">{facility.name}</span></Link></h3>
+                  <dl className="facility-card-meta">
+                    <div><dt><FiMapPin aria-hidden="true" /><span className="sr-only">Location</span></dt><dd>{facility.location?.name || `Location ${facility.location_id}`}</dd></div>
+                    <div><dt><FiUsers aria-hidden="true" /><span className="sr-only">Capacity</span></dt><dd>{facility.capacity} people</dd></div>
                   </dl>
-                  <p className="mt-3 text-sm text-primary">View details →</p>
-                  {manage && <div className="card-actions relative z-10 mt-3 justify-end">
+                  <Link to={`${manage ? '/admin' : ''}/facilities/${facility.id}`} className="facility-details-link" aria-label={`View details for ${facility.name}`}><span className="facility-animated-text">View details</span><FiArrowRight aria-hidden="true" /></Link>
+                  {manage && <div className="facility-admin-actions">
                     <Link to={`/admin/updateFacility/${facility.id}`} className="btn btn-sm" aria-label={`Edit ${facility.name}`}>Edit</Link>
                     <button type="button" className="btn btn-error btn-sm" disabled={deleting} onClick={() => openDelete(facility)} aria-label={`Delete ${facility.name}`}>Delete</button>
                   </div>}
@@ -193,7 +202,7 @@ export default function Facilities({ manage = false }) {
       </section>
 
       <nav
-        className="mt-4 flex items-center justify-center gap-3"
+        className="facilities-pagination"
         aria-label="Facilities pagination"
       >
         <button
@@ -202,7 +211,7 @@ export default function Facilities({ manage = false }) {
           disabled={loading || page === 1}
           onClick={() => changePage(page - 1)}
         >
-          Previous
+          <FiArrowLeft aria-hidden="true" /> Previous
         </button>
         <span aria-live="polite">Page {page}</span>
         <button
@@ -211,7 +220,7 @@ export default function Facilities({ manage = false }) {
           disabled={loading || Boolean(error) || !hasNext}
           onClick={() => changePage(page + 1)}
         >
-          Next
+          Next <FiArrowRight aria-hidden="true" />
         </button>
       </nav>
       <dialog ref={deleteDialog} className="modal" aria-labelledby="delete-title" aria-describedby="delete-description"

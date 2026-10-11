@@ -118,7 +118,61 @@
 .landing-cta p:last-child { color: #d5e6f5; font-size: 14px; }
 .landing-cta-button { flex-shrink: 0; min-height: 48px; border-radius: 10px; background: white; border-color: white; color: #174e89; }
 .landing-cta-button:hover { background: #e1f0fc; border-color: #e1f0fc; }
+.facilities-page { color: #16365b; }
+.facilities-heading { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 24px; padding: 36px; border: 1px solid #dfe8f2; border-radius: 24px; background: linear-gradient(120deg, #edf7ff, #fff); }
+.facilities-heading h1 { margin: 12px 0; font-size: clamp(32px, 4vw, 44px); font-weight: 800; letter-spacing: -.04em; line-height: 1.15; }
+.facilities-intro { max-width: 520px; font-size: 14px; line-height: 1.8; color: #526880; }
+.facilities-filters { margin-top: 28px; padding: 28px; border: 1px solid #dfe8f2; background: #fff; border-radius: 20px; box-shadow: 0 8px 28px #183b6606; }
+.facilities-filter-heading { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 24px; }
+.facilities-filter-heading > span { display: flex; align-items: center; gap: 10px; font-weight: 700; }
+.facilities-filter-heading > p { color: #526880; font-size: 12px; }
+.facilities-filters label { font-size: 12px; color: #34465d; }
+.facilities-filters .input, .facilities-filters .select { min-height: 46px; background: #f8fafc; border-color: #dbe4ee; border-radius: 10px; font-size: 13px; }
+.facilities-filters .input:focus, .facilities-filters .select:focus { outline: 2px solid #2588d3; outline-offset: 2px; }
+.facilities-results { margin-top: 36px; }
+.facilities-results-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 20px; }
+.facilities-results-heading h2 { font-size: 22px; font-weight: 700; letter-spacing: -.025em; }
+.facilities-results-heading p { font-size: 12px; color: #526880; }
+.facilities-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; }
+.facility-card { overflow: hidden; border: 1px solid #dfe8f2; border-radius: 20px; background: #fff; transition: transform .3s ease, box-shadow .3s ease, border-color .3s ease; }
+.facility-card:hover, .facility-card:focus-within { transform: translateY(-5px); border-color: #bad9ee; box-shadow: 0 18px 40px #183b6614; }
+.facility-card-image { position: relative; height: 210px; overflow: hidden; background: #e2f1fd; }
+.facility-card-image > img { width: 100%; height: 100%; object-fit: cover; transition: transform .5s ease; }
+.facility-card:hover .facility-card-image > img { transform: scale(1.05); }
+.facility-card-placeholder { display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 10px; height: 100%; background: radial-gradient(circle at 75% 20%, #c3e2f8, transparent 65%), linear-gradient(135deg, #edf7ff, #dceeff); color: #35618c; font-size: 13px; }
+.facility-card-placeholder > svg { font-size: 36px; margin-bottom: 6px; color: #247ab6; }
+.facility-card-placeholder small { font-size: 10px; }
+.facility-status { position: absolute; top: 14px; right: 14px; padding: 5px 10px; border-radius: 100px; font-size: 10px; font-weight: 700; border: 1px solid #ffffff80; }
+.facility-status.is-active { color: #226647; background: #e8f6ed; }
+.facility-status.is-inactive { color: #934935; background: #fff0e9; }
+.facility-card-body { padding: 24px; }
+.facility-card-body h3 { margin: 10px 0 18px; font-size: 22px; font-weight: 700; letter-spacing: -.025em; line-height: 1.3; overflow-wrap: anywhere; }
+.facility-animated-text { background-image: linear-gradient(currentColor, currentColor); background-position: 0 100%; background-size: 0 2px; background-repeat: no-repeat; padding-bottom: 3px; transition: background-size .3s ease; }
+.facility-title-link:hover .facility-animated-text, .facility-title-link:focus-visible .facility-animated-text, .facility-details-link:hover .facility-animated-text, .facility-details-link:focus-visible .facility-animated-text { background-size: 100% 2px; }
+.facility-card-meta { display: grid; gap: 10px; color: #526880; font-size: 12px; }
+.facility-card-meta > div { display: flex; align-items: start; gap: 9px; }
+.facility-card-meta dt { padding-top: 2px; color: #247ab6; font-size: 15px; }
+.facility-card-meta dd { overflow-wrap: anywhere; }
+.facility-details-link { display: inline-flex; align-items: center; gap: 8px; margin-top: 24px; color: #174e89; font-weight: 700; font-size: 13px; }
+.facility-details-link svg { transition: transform .3s ease; }
+.facility-details-link:hover svg, .facility-details-link:focus-visible svg { transform: translateX(6px); }
+.facility-admin-actions { display: flex; justify-content: end; gap: 8px; border-top: 1px solid #e8edf3; margin-top: 20px; padding-top: 16px; }
+.facilities-state { display: flex; flex-direction: column; align-items: center; gap: 14px; padding: 60px 24px; border: 1px dashed #c5d7e8; border-radius: 20px; background: #f8fbff; text-align: center; }
+.facilities-state h3 { font-size: 22px; font-weight: 700; }
+.facilities-state p { font-size: 14px; color: #526880; }
+.facilities-pagination { display: flex; align-items: center; justify-content: center; gap: 16px; margin-top: 32px; font-size: 13px; }
+.facilities-pagination .btn { background: #fff; border-color: #dbe4ee; border-radius: 10px; color: #174e89; }
+.facilities-pagination .btn:disabled { color: #8795a5; background: #edf1f5; }
+@media (min-width: 768px) and (max-width: 1023px) { .facilities-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (prefers-reduced-motion: reduce) {
+  .facility-card, .facility-card-image > img, .facility-animated-text, .facility-details-link svg { transition: none; }
+  .facility-card:hover, .facility-card:focus-within, .facility-card:hover .facility-card-image > img, .facility-details-link:hover svg, .facility-details-link:focus-visible svg { transform: none; }
+}
 @media (max-width: 767px) {
+  .facilities-heading { padding: 28px 24px; }
+  .facilities-filters { padding: 24px; }
+  .facilities-grid { grid-template-columns: 1fr; gap: 20px; }
+  .facility-card-image { height: 240px; }
   .landing-hero { grid-template-columns: 1fr; gap: 32px; padding: 28px 24px; border-radius: 20px; }
   .landing-hero-art { max-width: 480px; width: 100%; margin: 0 auto; }
   .landing-section { margin: 40px 0; }
