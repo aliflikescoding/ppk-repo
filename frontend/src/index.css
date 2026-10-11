@@ -186,6 +186,7 @@
 .dashboard-intro { max-width: 470px; color: #526880; font-size: 14px; line-height: 1.8; }
 .dashboard-illustration { width: 100%; height: auto; border-radius: 20px; }
 .dashboard-shortcuts { margin-top: 36px; }
+.admin-group-heading { flex-wrap: wrap; }
 .dashboard-action-card { display: flex; flex-direction: column; }
 .dashboard-action-card > p { flex: 1; }
 .dashboard-account { display: grid; grid-template-columns: 1fr 1.5fr; align-items: center; gap: 32px; margin-top: 28px; padding: 28px; border: 1px solid #dfe8f2; border-radius: 20px; background: #fff; }
