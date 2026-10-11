@@ -16,3 +16,9 @@ export const updateUserSchema = createUserSchema.extend({
 })
 
 export const registerSchema = createUserSchema.omit({ role: true })
+
+export const loginSchema = z.object({
+  email: createUserSchema.shape.email,
+  password: z.string().min(1, 'Password is required.')
+    .refine((value) => new TextEncoder().encode(value).length <= 72, 'Password must be at most 72 bytes.'),
+})
